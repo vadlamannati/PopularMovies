@@ -1,3 +1,11 @@
 <resources>
-    <string name="app_name">PopularMovies</string>
+    <string name="app_name">Popular Movies</string>
+    <string name="top_rated">Top Rated Movies</string>
+    <string name="most_popular">@string/app_name</string>
+    <string name="release_date">Release Date :</string>
+    <string name="user_rating">Rating :</string>
+    <string name="plot_header">Plot :</string>
+    <string name="button_name">button</string>
+
+
 </resources>
