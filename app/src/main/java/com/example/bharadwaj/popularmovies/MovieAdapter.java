@@ -8,34 +8,38 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.example.bharadwaj.popularmovies.movie_utilities.MovieJSONParser;
+
 import java.util.ArrayList;
-import java.util.HashMap;
 
 /**
- * Created by Bharadwaj on 8/6/17.
+ * @author Bharadwaj on 8/6/17.
+ *
  */
 
 public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHolder> {
     private static final String LOG_TAG = MovieAdapter.class.getSimpleName();
 
-    private ArrayList<HashMap<String, String>> mMovieData;
-    private ImageView mMovieThumbnail;
+    private ArrayList<Movie> mMovieData;
     private final MovieAdapterOnClickHandler mOnClickHandler;
 
     public interface MovieAdapterOnClickHandler {
-        void performOnClick(HashMap<String, String> currentMovie);
+        void performOnClick(Movie currentMovie);
     }
 
     public MovieAdapter(MovieAdapterOnClickHandler onClickHandler) {
         mOnClickHandler = onClickHandler;
     }
 
-
+ 
     public class MovieViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+
+        private final ImageView mMovieThumbnail;
+
 
         public MovieViewHolder(View itemView) {
             super(itemView);
-            mMovieThumbnail = (ImageView) itemView.findViewById(R.id.movie_thumbnail);
+            mMovieThumbnail = itemView.findViewById(R.id.movie_thumbnail);
             //Log.v(LOG_TAG, "Attaching movie overview view with ViewHolder");
             itemView.setOnClickListener(this);
         }
@@ -44,7 +48,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
         public void onClick(View view) {
             Log.v(LOG_TAG, "Entering onClick method in ViewHolder");
             int currentAdapterPosition = getAdapterPosition();
-            HashMap<String, String> currentMovie = mMovieData.get(currentAdapterPosition);
+            Movie currentMovie = mMovieData.get(currentAdapterPosition);
             mOnClickHandler.performOnClick(currentMovie);
         }
     }
@@ -64,12 +68,12 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
     public void onBindViewHolder(MovieViewHolder movieHolder, int position) {
         //Log.v(LOG_TAG, "Entering onBindViewHolder method ");
 
-        HashMap<String, String> movie = mMovieData.get(position);
+        Movie movie = mMovieData.get(position);
 
         //Log.v(LOG_TAG, "Position is : " + position);
         //Log.v(LOG_TAG, "Current Movie is : " + movie);
 
-        MovieJSONParser.buildPosterFromPath(movie.get(MovieJSONParser.POSTER_PATH), mMovieThumbnail);
+        MovieJSONParser.buildPosterFromPath(movie.getPosterPath(), movieHolder.mMovieThumbnail);
 
     }
 
@@ -82,7 +86,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
     }
 
 
-    public void setMovieData(ArrayList<HashMap<String, String>> movieData) {
+    public void setMovieData(ArrayList<Movie> movieData) {
         //Log.v(LOG_TAG, "Setting Movie data to Adapter. Movie Data length : " + movieData.size());
         mMovieData = movieData;
 

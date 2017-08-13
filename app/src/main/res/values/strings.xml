@@ -2,10 +2,15 @@
     <string name="app_name">Popular Movies</string>
     <string name="top_rated">Top Rated Movies</string>
     <string name="most_popular">@string/app_name</string>
-    <string name="release_date">Release Date :</string>
+    <string name="release_date">Released On:</string>
     <string name="user_rating">Rating :</string>
-    <string name="plot_header">Plot :</string>
-    <string name="button_name">button</string>
+    <string name="plot_header">Movie Plot :</string>
+    <string name="error_occurred">Sorry! An error has occurred. Please try again.</string>
+    <string name="refresh">Refresh</string>
+    <string name="movie_poster">Movie Poster</string>
+    <string name="movie_release_date_value">No value</string>
+    <string name="movie_user_rating">No value</string>
+    <string name="movie_plot">No value</string>
 
 
 </resources>

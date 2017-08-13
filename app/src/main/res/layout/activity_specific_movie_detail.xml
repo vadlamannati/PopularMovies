@@ -1,42 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
 <GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
-    android:layout_height="300sp"
-    android:orientation="horizontal"
-    android:columnCount="3">
+    android:layout_height="wrap_content"
+    android:columnCount="4"
+    android:id="@+id/specific_movie_layout"
+    style="@style/LayoutStyling"
+    android:orientation="horizontal">
 
     <TextView
         android:id="@+id/movie_release_date_header"
+        style="@style/HeaderTextStyling"
         android:text="@string/release_date"/>
 
     <TextView
         android:id="@+id/movie_release_date_value"
-        android:text="test"/>
+        style="@style/ValueTextStyling"
+        android:text="@string/movie_release_date_value"/>
 
     <ImageView
         android:id="@+id/movie_poster"
+        android:layout_gravity="fill"
+        android:contentDescription="@string/movie_poster"
         android:layout_rowSpan="3"
-        android:layout_gravity="fill"/>
+        android:layout_columnSpan="2"
+        android:scaleType="matrix"/>
 
     <TextView
         android:id="@+id/movie_user_rating_header"
+        style="@style/HeaderTextStyling"
         android:text="@string/user_rating"/>
 
     <TextView
         android:id="@+id/movie_user_rating_value"
-        android:text="test"/>
-
+        style="@style/ValueTextStyling"
+        android:text="@string/movie_user_rating"/>
 
     <TextView
         android:id="@+id/movie_plot_header"
+        style="@style/HeaderTextStyling"
         android:layout_columnSpan="2"
-        android:layout_gravity="fill"
+        android:paddingTop="16dp"
+        android:layout_gravity="bottom"
         android:text="@string/plot_header"/>
 
     <TextView
-        android:id="@+id/movie_overview"
+        android:id="@+id/movie_plot"
+        style="@style/ValueTextStyling"
+        android:layout_height="wrap_content"
         android:layout_columnSpan="3"
         android:layout_gravity="fill"
-        android:text="plot"/>
+        android:text="@string/movie_plot"/>
 
 </GridLayout>

@@ -8,10 +8,30 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
-    <style name="TextStyling" >
+    <style name="HeaderTextStyling" >
 
-        <item name="android:textSize">22sp</item>
+        <item name="android:textSize">20sp</item>
         <item name="android:color">@android:color/black</item>
+        <item name="android:paddingLeft">8dp</item>
+        <item name="android:textStyle">italic</item>
+        <item name="android:paddingTop">8dp</item>
+        <item name="android:layout_height">56dp</item>
+
+    </style>
+
+    <style name="ValueTextStyling" >
+
+        <item name="android:textSize">20sp</item>
+        <item name="android:color">@android:color/black</item>
+        <item name="android:paddingLeft">8dp</item>
+        <item name="android:paddingTop">8dp</item>
+        <item name="android:layout_height">56dp</item>
+
+    </style>
+
+    <style name="LayoutStyling">
+
+        <item name="android:padding">8dp</item>
 
     </style>
     
