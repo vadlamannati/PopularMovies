@@ -1,10 +1,14 @@
 package com.example.bharadwaj.popularmovies.movie_utilities;
 
 import android.net.Uri;
+import android.os.Build;
+import android.support.annotation.RequiresApi;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.widget.ImageView;
 
 import com.example.bharadwaj.popularmovies.Movie;
+import com.example.bharadwaj.popularmovies.R;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
@@ -29,7 +33,9 @@ public class MovieJSONParser {
     private final static String OVERVIEW = "overview";
     private final static String USER_RATING = "vote_average";
     private final static String RELEASE_DATE = "release_date";
-    private final static String IMAGE_BASE_URL = "http://image.tmdb.org/t/p/w342/";
+    private final static String IMAGE_BASE_URL = "http://image.tmdb.org/t/p/w185/";
+    private final static int TARGET_WIDTH = 345;
+    private final static int TARGET_HEIGHT = 380;
 
     public static ArrayList<Movie> getMovies(String movieJsonResponse) throws JSONException {
 
@@ -86,7 +92,12 @@ public class MovieJSONParser {
         Uri movieUri = Uri.parse(IMAGE_BASE_URL + posterPath).buildUpon().build();
         //Log.v(LOG_TAG, "Movie Uri built : "+movieUri);
 
-        Picasso.with(movieThumbnail.getContext()).load(movieUri).into(movieThumbnail);
+        Picasso.with(movieThumbnail.getContext())
+                .load(movieUri)
+                .placeholder(ContextCompat.getDrawable(movieThumbnail.getContext(), R.drawable.place_holder))
+                .error(ContextCompat.getDrawable(movieThumbnail.getContext(), R.drawable.error))
+                .resize(TARGET_WIDTH,TARGET_HEIGHT)
+                .into(movieThumbnail);
     }
 
 }

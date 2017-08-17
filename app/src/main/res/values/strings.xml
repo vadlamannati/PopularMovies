@@ -8,9 +8,7 @@
     <string name="error_occurred">Sorry! An error has occurred. Please try again.</string>
     <string name="refresh">Refresh</string>
     <string name="movie_poster">Movie Poster</string>
-    <string name="movie_release_date_value">No value</string>
-    <string name="movie_user_rating">No value</string>
-    <string name="movie_plot">No value</string>
+    <string name="no_active_network">No active Network connection detected. Please connect to internet.</string>
 
 
 </resources>

@@ -1,22 +1,33 @@
 package com.example.bharadwaj.popularmovies;
 
 import android.content.Intent;
+import android.databinding.DataBindingUtil;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.bharadwaj.popularmovies.databinding.ActivitySpecificMovieDetailBinding;
 import com.example.bharadwaj.popularmovies.movie_utilities.MovieJSONParser;
 
 public class SpecificMovieDetail extends AppCompatActivity {
 
     private static final String LOG_TAG = SpecificMovieDetail.class.getSimpleName();
+    //Using Binding to avoid findViewById multiple times. Binding is more faster as well.
+    ActivitySpecificMovieDetailBinding specificMovieDetailBinding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_specific_movie_detail);
+
+        specificMovieDetailBinding = DataBindingUtil.setContentView(this, R.layout.activity_specific_movie_detail);
+
+        Log.v(LOG_TAG, "Action bar : " + getActionBar());
+        Log.v(LOG_TAG, "Support action bar : " + getSupportActionBar());
+
+        //Enabling UP naviation on the activity to go back to parent activity. Parent defined in manifest file
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         Intent intentSourceActivity = getIntent();
         Log.v(LOG_TAG, "Intent received from : " + intentSourceActivity.toString());
@@ -32,17 +43,14 @@ public class SpecificMovieDetail extends AppCompatActivity {
 
     private void setMovieDetailsToActivity(Movie movie){
 
-        ImageView mPoster = (ImageView) findViewById(R.id.movie_poster);
-        TextView mReleaseDate = (TextView) findViewById(R.id.movie_release_date_value);
-        TextView mUserRating = (TextView) findViewById(R.id.movie_user_rating_value);
-        TextView mOverview = (TextView) findViewById(R.id.movie_plot);
-
-
-        MovieJSONParser.buildPosterFromPath(movie.getPosterPath(), mPoster);
+        //Setting title of page to selected movie name
         setTitle(movie.getTitle());
-        mReleaseDate.setText(movie.getReleaseDate());
-        mUserRating.setText(movie.getUserRating());
-        mOverview.setText(movie.getOverview());
+
+        MovieJSONParser.buildPosterFromPath(movie.getPosterPath(), specificMovieDetailBinding.moviePoster);
+        specificMovieDetailBinding.movieReleaseDateValue.setText(movie.getReleaseDate());
+        specificMovieDetailBinding.movieUserRatingValue.setText(movie.getUserRating());
+        specificMovieDetailBinding.moviePlot.setText(movie.getOverview());
+
     }
 
 }

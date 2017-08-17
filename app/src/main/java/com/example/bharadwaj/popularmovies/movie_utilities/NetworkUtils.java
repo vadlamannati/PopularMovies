@@ -29,7 +29,7 @@ public class NetworkUtils {
 
 
     //Query Param values
-    private final static String API_KEY_VALUE = "";
+    private final static String API_KEY_VALUE = "cfdb086905a2ae796fb3453e69966fe6";
 
 
     public static URL buildURL(String sortPreference){
@@ -57,6 +57,8 @@ public class NetworkUtils {
 
     public static String getResponseFromHttpUrl(URL url) throws IOException {
         HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+        urlConnection.setConnectTimeout(5000);
+        urlConnection.setReadTimeout(5000);
 
         Log.v(LOG_TAG, "Getting JSON response from URL : " + url);
         try {

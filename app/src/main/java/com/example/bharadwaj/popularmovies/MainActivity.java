@@ -3,6 +3,9 @@ package com.example.bharadwaj.popularmovies;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.databinding.DataBindingUtil;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -16,6 +19,7 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.example.bharadwaj.popularmovies.databinding.ActivityMainBinding;
 import com.example.bharadwaj.popularmovies.movie_utilities.MovieJSONParser;
 import com.example.bharadwaj.popularmovies.movie_utilities.MoviePreferences;
 import com.example.bharadwaj.popularmovies.movie_utilities.NetworkUtils;
@@ -30,35 +34,52 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity implements MovieAdapter.MovieAdapterOnClickHandler {
 
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
-    private RecyclerView mRecyclerView;
-    private MovieAdapter mMovieAdapter;
-    private ProgressBar mProgressBar;
-    private TextView mErrorMessageDisplay;
+    private static MovieAdapter mMovieAdapter;
+    private static ActivityMainBinding mainActivityBinding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
-        mRecyclerView = (RecyclerView) findViewById(R.id.movies_recycler_view);
+        DataBindingUtil.setContentView(this, R.layout.activity_main);
         mMovieAdapter = new MovieAdapter(this);
 
         if(MainActivity.this.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT){
-            mRecyclerView.setLayoutManager(new GridLayoutManager(MainActivity.this, 3));
+            mainActivityBinding.moviesRecyclerView.setLayoutManager(new GridLayoutManager(MainActivity.this, 3));
         }
         else{
-            mRecyclerView.setLayoutManager(new GridLayoutManager(MainActivity.this, 5));
+            mainActivityBinding.moviesRecyclerView.setLayoutManager(new GridLayoutManager(MainActivity.this, 5));
+            setTitle("HI");
         }
 
-        mRecyclerView.setAdapter(mMovieAdapter);
-        mRecyclerView.setHasFixedSize(true);
+        mainActivityBinding.moviesRecyclerView.setAdapter(mMovieAdapter);
+        mainActivityBinding.moviesRecyclerView.setHasFixedSize(true);
 
-        mProgressBar = (ProgressBar) findViewById(R.id.movie_progress_bar);
-        mErrorMessageDisplay = (TextView) findViewById(R.id.error_message);
-
-        loadMovies(MoviePreferences.DEFAULT_SORT_PREFERENCE);
+        if(isConnectedToInternet()){
+            loadMovies(MoviePreferences.DEFAULT_SORT_PREFERENCE);
+        }
     }
 
+    private boolean isConnectedToInternet(){
+
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+        boolean isConnectedToInternet = (networkInfo!=null) && networkInfo.isConnectedOrConnecting();
+        Log.v(LOG_TAG, "Fetching active internet connection : " + isConnectedToInternet);
+        if(!isConnectedToInternet){
+            Log.v(LOG_TAG, "Not connected to Internet");
+            MainActivity.showErrorMessage(getString(R.string.no_active_network));
+            return false;
+        }
+        else{
+            return true;
+        }
+    }
+
+    /**
+     * This method loads a list of movies into MainActivity.
+     *
+     * @param sortPreference Sorting order of movies selected by the user.
+     */
     private void loadMovies(String sortPreference) {
         Log.v(LOG_TAG, "Entering loadMovies method");
         showMovies();
@@ -69,7 +90,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
             setTitle(R.string.top_rated);
         }
 
-        new MovieAsyncTask().execute(sortPreference);
+        new MovieAsyncTask(this, mainActivityBinding.movieProgressBar, mMovieAdapter).execute(sortPreference);
     }
 
     @Override
@@ -87,64 +108,16 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
 
     }
 
-    private void showErrorMessage() {
-        mRecyclerView.setVisibility(View.INVISIBLE);
-        mErrorMessageDisplay.setVisibility(View.VISIBLE);
+    protected static void showErrorMessage(String errorMessage) {
+        mainActivityBinding.errorMessage.setText(errorMessage);
+
+        mainActivityBinding.moviesRecyclerView.setVisibility(View.INVISIBLE);
+        mainActivityBinding.errorMessage.setVisibility(View.VISIBLE);
     }
 
-    private void showMovies() {
-        mErrorMessageDisplay.setVisibility(View.INVISIBLE);
-        mRecyclerView.setVisibility(View.VISIBLE);
-    }
-
-    private class MovieAsyncTask extends AsyncTask<String, Void, ArrayList<Movie>> {
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            Log.v(LOG_TAG, "Entering onPreExecute method");
-
-            mProgressBar.setVisibility(View.VISIBLE);
-
-        }
-
-        @Override
-        protected ArrayList<Movie> doInBackground(String... params) {
-            Log.v(LOG_TAG, "Entering doInBackground method");
-
-            String sortPreference = params[0];
-            URL builtUrl = NetworkUtils.buildURL(sortPreference);
-            Log.v(LOG_TAG, "URL built : " + builtUrl);
-
-            try {
-                String movieJsonResponse = NetworkUtils.getResponseFromHttpUrl(builtUrl);
-                //Log.v(LOG_TAG, "Movie JSON data sample : " + movieJsonData[0]);
-                return MovieJSONParser.getMovies(movieJsonResponse);
-
-            } catch (IOException e) {
-                Log.v(LOG_TAG, "IO Exception occurred");
-                e.printStackTrace();
-            } catch (JSONException e) {
-                Log.v(LOG_TAG, "JSON Exception occurred");
-                e.printStackTrace();
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(ArrayList<Movie> movies) {
-            Log.v(LOG_TAG, "Entering onPostExecute method");
-            Log.v(LOG_TAG, "Movie Data length : " + movies.size());
-
-            mProgressBar.setVisibility(View.INVISIBLE);
-            if (movies.isEmpty()) {
-                Log.v(LOG_TAG, "No Movies to show");
-                showErrorMessage();
-            }else{
-                mMovieAdapter.setMovieData(movies);
-            }
-        }
-
+    private static void showMovies() {
+        mainActivityBinding.errorMessage.setVisibility(View.INVISIBLE);
+        mainActivityBinding.moviesRecyclerView.setVisibility(View.VISIBLE);
     }
 
     @Override
