@@ -40,7 +40,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        DataBindingUtil.setContentView(this, R.layout.activity_main);
+        mainActivityBinding = DataBindingUtil.setContentView(this, R.layout.activity_main);
         mMovieAdapter = new MovieAdapter(this);
 
         if(MainActivity.this.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT){
