@@ -23,7 +23,7 @@ public class NetworkUtils {
     private final static String API_KEY_PARAM = "api_key";
 
     //Query Param values
-    private final static String API_KEY_VALUE = "cfdb086905a2ae796fb3453e69966fe6";
+    private final static String API_KEY_VALUE = "";
 
 
     public static URL buildURL(String sortPreference) {
