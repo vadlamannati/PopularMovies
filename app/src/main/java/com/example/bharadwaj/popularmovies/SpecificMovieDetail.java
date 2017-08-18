@@ -2,11 +2,9 @@ package com.example.bharadwaj.popularmovies;
 
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.example.bharadwaj.popularmovies.databinding.ActivitySpecificMovieDetailBinding;
 import com.example.bharadwaj.popularmovies.movie_utilities.MovieJSONParser;
@@ -14,6 +12,7 @@ import com.example.bharadwaj.popularmovies.movie_utilities.MovieJSONParser;
 public class SpecificMovieDetail extends AppCompatActivity {
 
     private static final String LOG_TAG = SpecificMovieDetail.class.getSimpleName();
+
     //Using Binding to avoid findViewById multiple times. Binding is more faster as well.
     ActivitySpecificMovieDetailBinding specificMovieDetailBinding;
 
@@ -32,8 +31,8 @@ public class SpecificMovieDetail extends AppCompatActivity {
         Intent intentSourceActivity = getIntent();
         Log.v(LOG_TAG, "Intent received from : " + intentSourceActivity.toString());
 
-        if(intentSourceActivity.getExtras()!= null){
-            if(intentSourceActivity.hasExtra(Intent.EXTRA_TEXT)){
+        if (intentSourceActivity.getExtras() != null) {
+            if (intentSourceActivity.hasExtra(Intent.EXTRA_TEXT)) {
                 Movie specificMovieDetails = intentSourceActivity.getParcelableExtra(Intent.EXTRA_TEXT);
                 setMovieDetailsToActivity(specificMovieDetails);
                 Log.v(LOG_TAG, "Setting specific movie details to activity.");
@@ -41,7 +40,7 @@ public class SpecificMovieDetail extends AppCompatActivity {
         }
     }
 
-    private void setMovieDetailsToActivity(Movie movie){
+    private void setMovieDetailsToActivity(Movie movie) {
 
         //Setting title of page to selected movie name
         setTitle(movie.getTitle());

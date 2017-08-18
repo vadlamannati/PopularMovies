@@ -6,29 +6,17 @@ import android.content.res.Configuration;
 import android.databinding.DataBindingUtil;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 
 import com.example.bharadwaj.popularmovies.databinding.ActivityMainBinding;
-import com.example.bharadwaj.popularmovies.movie_utilities.MovieJSONParser;
 import com.example.bharadwaj.popularmovies.movie_utilities.MoviePreferences;
-import com.example.bharadwaj.popularmovies.movie_utilities.NetworkUtils;
-
-import org.json.JSONException;
-
-import java.io.IOException;
-import java.net.URL;
-import java.util.ArrayList;
 
 
 public class MainActivity extends AppCompatActivity implements MovieAdapter.MovieAdapterOnClickHandler {
@@ -37,49 +25,64 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     private static MovieAdapter mMovieAdapter;
     private static ActivityMainBinding mainActivityBinding;
 
+    protected static void showErrorMessage(String errorMessage) {
+        Log.v(LOG_TAG, "Entering showErrorMessage method");
+        mainActivityBinding.errorMessage.setText(errorMessage);
+        mainActivityBinding.moviesRecyclerView.setVisibility(View.INVISIBLE);
+        mainActivityBinding.errorMessage.setVisibility(View.VISIBLE);
+        Log.v(LOG_TAG, "Error message shown : " + errorMessage);
+        Log.v(LOG_TAG, "Leaving showErrorMessage method");
+    }
+
+    private static void showMovies() {
+        Log.v(LOG_TAG, "Entering showMovies method");
+        mainActivityBinding.errorMessage.setVisibility(View.INVISIBLE);
+        mainActivityBinding.moviesRecyclerView.setVisibility(View.VISIBLE);
+        Log.v(LOG_TAG, "Leaving showMovies method");
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.v(LOG_TAG, "Entering onCreate");
         mainActivityBinding = DataBindingUtil.setContentView(this, R.layout.activity_main);
         mMovieAdapter = new MovieAdapter(this);
 
-        if(MainActivity.this.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT){
+        if (MainActivity.this.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+            Log.v(LOG_TAG, "Device orientation : PORTRAIT");
             mainActivityBinding.moviesRecyclerView.setLayoutManager(new GridLayoutManager(MainActivity.this, 3));
-        }
-        else{
+        } else {
+            Log.v(LOG_TAG, "Device orientation : + LANDSCAPE");
             mainActivityBinding.moviesRecyclerView.setLayoutManager(new GridLayoutManager(MainActivity.this, 5));
-            setTitle("HI");
         }
 
         mainActivityBinding.moviesRecyclerView.setAdapter(mMovieAdapter);
         mainActivityBinding.moviesRecyclerView.setHasFixedSize(true);
 
-        if(isConnectedToInternet()){
+        if (isConnectedToInternet()) {
             loadMovies(MoviePreferences.DEFAULT_SORT_PREFERENCE);
         }
+        Log.v(LOG_TAG, "Leaving onCreate");
     }
 
-    private boolean isConnectedToInternet(){
+    private boolean isConnectedToInternet() {
 
+        Log.v(LOG_TAG, "Entering isConnectedToInternet");
         ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
-        boolean isConnectedToInternet = (networkInfo!=null) && networkInfo.isConnectedOrConnecting();
+        boolean isConnectedToInternet = (networkInfo != null) && networkInfo.isConnectedOrConnecting();
         Log.v(LOG_TAG, "Fetching active internet connection : " + isConnectedToInternet);
-        if(!isConnectedToInternet){
+        if (!isConnectedToInternet) {
             Log.v(LOG_TAG, "Not connected to Internet");
             MainActivity.showErrorMessage(getString(R.string.no_active_network));
+            Log.v(LOG_TAG, "Leaving isConnectedToInternet");
             return false;
-        }
-        else{
+        } else {
+            Log.v(LOG_TAG, "Leaving isConnectedToInternet");
             return true;
         }
     }
 
-    /**
-     * This method loads a list of movies into MainActivity.
-     *
-     * @param sortPreference Sorting order of movies selected by the user.
-     */
     private void loadMovies(String sortPreference) {
         Log.v(LOG_TAG, "Entering loadMovies method");
         showMovies();
@@ -89,13 +92,13 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         if (sortPreference.equals(MoviePreferences.SORT_BY_TOP_RATED)) {
             setTitle(R.string.top_rated);
         }
-
         new MovieAsyncTask(this, mainActivityBinding.movieProgressBar, mMovieAdapter).execute(sortPreference);
+        Log.v(LOG_TAG, "Leaving loadMovies method");
     }
 
     @Override
     public void performOnClick(Movie currentMovie) {
-        //Log.v(LOG_TAG, currentMovie.get(MovieJSONParser.TITLE) + " movie clicked.");
+        Log.v(LOG_TAG, "Entering performOnClick method");
         Intent intentToStartSpecificMovieDetail;
         Context context = this;
         Class destination = SpecificMovieDetail.class;
@@ -103,35 +106,23 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         intentToStartSpecificMovieDetail = new Intent(context, destination);
         intentToStartSpecificMovieDetail.putExtra(Intent.EXTRA_TEXT, currentMovie);
 
-        startActivity(intentToStartSpecificMovieDetail);
         Log.v(LOG_TAG, "Starting specific movie details intent.");
-
-    }
-
-    protected static void showErrorMessage(String errorMessage) {
-        mainActivityBinding.errorMessage.setText(errorMessage);
-
-        mainActivityBinding.moviesRecyclerView.setVisibility(View.INVISIBLE);
-        mainActivityBinding.errorMessage.setVisibility(View.VISIBLE);
-    }
-
-    private static void showMovies() {
-        mainActivityBinding.errorMessage.setVisibility(View.INVISIBLE);
-        mainActivityBinding.moviesRecyclerView.setVisibility(View.VISIBLE);
+        startActivity(intentToStartSpecificMovieDetail);
+        Log.v(LOG_TAG, "Leaving performOnClick method");
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-
+        Log.v(LOG_TAG, "Entering onCreateOptionsMenu method");
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.sort_by, menu);
-
+        Log.v(LOG_TAG, "Leaving onCreateOptionsMenu method");
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-
+        Log.v(LOG_TAG, "Entering onOptionsItemSelected method");
         int itemId = item.getItemId();
 
         mMovieAdapter.setMovieData(null);
@@ -152,7 +143,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
 
             default:
         }
-
+        Log.v(LOG_TAG, "Leaving onOptionsItemSelected method");
         return super.onOptionsItemSelected(item);
     }
 }

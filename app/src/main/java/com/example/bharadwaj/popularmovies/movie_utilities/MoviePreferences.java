@@ -2,7 +2,6 @@ package com.example.bharadwaj.popularmovies.movie_utilities;
 
 /**
  * @author Bharadwaj on 8/12/17.
- *
  */
 
 public class MoviePreferences {

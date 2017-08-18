@@ -1,8 +1,6 @@
 package com.example.bharadwaj.popularmovies;
 
 import android.content.Context;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.view.View;
@@ -41,6 +39,7 @@ public class MovieAsyncTask extends AsyncTask<String, Void, ArrayList<Movie>> {
 
         mProgressBar.setVisibility(View.VISIBLE);
 
+        Log.v(LOG_TAG, "Leaving onPreExecute method");
     }
 
     @Override
@@ -62,6 +61,8 @@ public class MovieAsyncTask extends AsyncTask<String, Void, ArrayList<Movie>> {
         } catch (JSONException e) {
             Log.v(LOG_TAG, "JSON Exception occurred");
             e.printStackTrace();
+        } finally {
+            Log.v(LOG_TAG, "Leaving doInBackground method");
         }
         return null;
     }
@@ -77,5 +78,6 @@ public class MovieAsyncTask extends AsyncTask<String, Void, ArrayList<Movie>> {
         } else {
             mMovieAdapter.setMovieData(movies);
         }
+        Log.v(LOG_TAG, "Leaving onPostExecute method");
     }
 }

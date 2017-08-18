@@ -1,8 +1,6 @@
 package com.example.bharadwaj.popularmovies.movie_utilities;
 
 import android.net.Uri;
-import android.os.Build;
-import android.support.annotation.RequiresApi;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.widget.ImageView;
@@ -20,7 +18,6 @@ import java.util.ArrayList;
 
 /**
  * @author Bharadwaj on 8/11/17.
- *
  */
 
 public class MovieJSONParser {
@@ -38,6 +35,7 @@ public class MovieJSONParser {
     private final static int TARGET_HEIGHT = 380;
 
     public static ArrayList<Movie> getMovies(String movieJsonResponse) throws JSONException {
+        Log.v(LOG_TAG, "Entering getMovies method");
 
         final String RESULTS = "results";
         final String ERROR_CODE = "cod";
@@ -51,6 +49,7 @@ public class MovieJSONParser {
 
         if (movieJsonResponseObject.has(ERROR_CODE)) {
             int errorCode = movieJsonResponseObject.getInt(ERROR_CODE);
+            Log.v(LOG_TAG, "Error code : " + errorCode);
             switch (errorCode) {
                 case HttpURLConnection.HTTP_OK:
                     break;
@@ -63,9 +62,7 @@ public class MovieJSONParser {
         }
 
         movieResultsArray = movieJsonResponseObject.getJSONArray(RESULTS);
-
         movieJsonData = new ArrayList<>();
-
 
         Log.v(LOG_TAG, "Movie Array length : " + movieResultsArray.length());
         for (int i = 0; i < movieResultsArray.length(); i++) {
@@ -78,17 +75,16 @@ public class MovieJSONParser {
             String releaseDate = movieResults.getString(RELEASE_DATE);
             String overview = movieResults.getString(OVERVIEW);
 
-            movie = new Movie(title,posterPath,overview,userRating,releaseDate);
+            movie = new Movie(title, posterPath, overview, userRating, releaseDate);
 
             movieJsonData.add(movie);
 
         }
-        //Log.v(LOG_TAG, "Built JSON data sample: " + movieJsonData[0]);
-        //Log.v(LOG_TAG, "\n Movie Json data : \n" + movieJsonData);
+        Log.v(LOG_TAG, "Leaving getMovies method");
         return movieJsonData;
     }
 
-    public static void buildPosterFromPath(String posterPath, ImageView movieThumbnail){
+    public static void buildPosterFromPath(String posterPath, ImageView movieThumbnail) {
         Uri movieUri = Uri.parse(IMAGE_BASE_URL + posterPath).buildUpon().build();
         //Log.v(LOG_TAG, "Movie Uri built : "+movieUri);
 
@@ -96,7 +92,7 @@ public class MovieJSONParser {
                 .load(movieUri)
                 .placeholder(ContextCompat.getDrawable(movieThumbnail.getContext(), R.drawable.place_holder))
                 .error(ContextCompat.getDrawable(movieThumbnail.getContext(), R.drawable.error))
-                .resize(TARGET_WIDTH,TARGET_HEIGHT)
+                .resize(TARGET_WIDTH, TARGET_HEIGHT)
                 .into(movieThumbnail);
     }
 

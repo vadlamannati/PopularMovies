@@ -4,13 +4,23 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 /**
- * @author  Bharadwaj on 8/13/17.
- * POJO class defined to deal with movie details in an easier way
- *
+ * @author Bharadwaj on 8/13/17.
+ *         POJO class defined to deal with movie details in an easier way
  */
 
-public class Movie implements Parcelable{
+public class Movie implements Parcelable {
 
+    public static final Creator<Movie> CREATOR = new Creator<Movie>() {
+        @Override
+        public Movie createFromParcel(Parcel movieParcel) {
+            return new Movie(movieParcel);
+        }
+
+        @Override
+        public Movie[] newArray(int size) {
+            return new Movie[size];
+        }
+    };
     private final String mTitle;
     private final String mPosterPath;
     private final String mOverview;
@@ -32,18 +42,6 @@ public class Movie implements Parcelable{
         mUserRating = movieParcel.readString();
         mReleaseDate = movieParcel.readString();
     }
-
-    public static final Creator<Movie> CREATOR = new Creator<Movie>() {
-        @Override
-        public Movie createFromParcel(Parcel movieParcel) {
-            return new Movie(movieParcel);
-        }
-
-        @Override
-        public Movie[] newArray(int size) {
-            return new Movie[size];
-        }
-    };
 
     public String getTitle() {
         return mTitle;
