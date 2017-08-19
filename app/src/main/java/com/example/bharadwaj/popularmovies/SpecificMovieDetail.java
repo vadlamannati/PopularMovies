@@ -23,13 +23,17 @@ public class SpecificMovieDetail extends AppCompatActivity {
         specificMovieDetailBinding = DataBindingUtil.setContentView(this, R.layout.activity_specific_movie_detail);
 
         Log.v(LOG_TAG, "Action bar : " + getActionBar());
-        Log.v(LOG_TAG, "Support action bar : " + getSupportActionBar());
 
         //Enabling UP naviation on the activity to go back to parent activity. Parent defined in manifest file
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        if(getSupportActionBar() != null){
+            Log.v(LOG_TAG, "Support action bar : " + getSupportActionBar());
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }else{
+            Log.v(LOG_TAG, "Support Action Bar is null");
+        }
 
         Intent intentSourceActivity = getIntent();
-        Log.v(LOG_TAG, "Intent received from : " + intentSourceActivity.toString());
+        Log.v(LOG_TAG, "Intent received : " + intentSourceActivity.toString());
 
         if (intentSourceActivity.getExtras() != null) {
             if (intentSourceActivity.hasExtra(Intent.EXTRA_TEXT)) {

@@ -2,6 +2,8 @@ package com.example.bharadwaj.popularmovies;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.os.Bundle;
+import android.support.v4.content.AsyncTaskLoader;
 import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
@@ -19,34 +21,47 @@ import java.util.ArrayList;
  * Created by Bharadwaj on 8/14/17.
  */
 
-public class MovieAsyncTask extends AsyncTask<String, Void, ArrayList<Movie>> {
+public class MovieAsyncTaskLoader extends AsyncTaskLoader<ArrayList<Movie>> {
 
-    private static final String LOG_TAG = MovieAsyncTask.class.getSimpleName();
+    private static final String LOG_TAG = MovieAsyncTaskLoader.class.getSimpleName();
     Context mContext;
     ProgressBar mProgressBar;
     MovieAdapter mMovieAdapter;
+    Bundle mBundle;
+    private static final String SORT_PREFERENCE = "SORT_PREFERENCE";
 
-    public MovieAsyncTask(Context context, ProgressBar mProgressBar, MovieAdapter adapter) {
+    public MovieAsyncTaskLoader(Context context, ProgressBar mProgressBar, MovieAdapter adapter, Bundle bundle) {
+        super(context);
         mContext = context;
         this.mProgressBar = mProgressBar;
         mMovieAdapter = adapter;
+        mBundle = bundle;
     }
 
     @Override
-    protected void onPreExecute() {
-        super.onPreExecute();
-        Log.v(LOG_TAG, "Entering onPreExecute method");
+    protected void onStartLoading() {
+        Log.v(LOG_TAG, "Entering onStartLoading");
+        super.onStartLoading();
 
-        mProgressBar.setVisibility(View.VISIBLE);
+        ArrayList<Movie> movies = mMovieAdapter.getMovies();
+        if(null != movies){
+            deliverResult(movies);
+        }else {
+            Log.v(LOG_TAG, "No movies to show. Generating");
+            mProgressBar.setVisibility(View.VISIBLE);
+            forceLoad();
+        }
 
-        Log.v(LOG_TAG, "Leaving onPreExecute method");
+        Log.v(LOG_TAG, "Leaving onStartLoading");
     }
 
     @Override
-    protected ArrayList<Movie> doInBackground(String... params) {
-        Log.v(LOG_TAG, "Entering doInBackground method");
+    public ArrayList<Movie> loadInBackground() {
 
-        String sortPreference = params[0];
+
+        Log.v(LOG_TAG, "Entering loadInBackground");
+
+        String sortPreference = mBundle.getString(SORT_PREFERENCE);
         URL builtUrl = NetworkUtils.buildURL(sortPreference);
         Log.v(LOG_TAG, "URL built : " + builtUrl);
 
@@ -62,22 +77,15 @@ public class MovieAsyncTask extends AsyncTask<String, Void, ArrayList<Movie>> {
             Log.v(LOG_TAG, "JSON Exception occurred");
             e.printStackTrace();
         } finally {
-            Log.v(LOG_TAG, "Leaving doInBackground method");
+            Log.v(LOG_TAG, "Leaving loadInBackground");
         }
+
         return null;
     }
 
     @Override
-    protected void onPostExecute(ArrayList<Movie> movies) {
-        Log.v(LOG_TAG, "Entering onPostExecute method");
-
-        mProgressBar.setVisibility(View.INVISIBLE);
-        if (movies == null) {
-            Log.v(LOG_TAG, "No Movies to show");
-            MainActivity.showErrorMessage(mContext.getString(R.string.error_occurred));
-        } else {
-            mMovieAdapter.setMovieData(movies);
-        }
-        Log.v(LOG_TAG, "Leaving onPostExecute method");
+    public void deliverResult(ArrayList<Movie> movies) {
+        Log.v(LOG_TAG, "Delivering result");
+        super.deliverResult(movies);
     }
 }

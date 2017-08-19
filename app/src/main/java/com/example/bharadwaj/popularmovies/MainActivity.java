@@ -7,6 +7,8 @@ import android.databinding.DataBindingUtil;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.util.Log;
@@ -18,12 +20,18 @@ import android.view.View;
 import com.example.bharadwaj.popularmovies.databinding.ActivityMainBinding;
 import com.example.bharadwaj.popularmovies.movie_utilities.MoviePreferences;
 
+import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity implements MovieAdapter.MovieAdapterOnClickHandler {
+
+public class MainActivity extends AppCompatActivity implements MovieAdapter.MovieAdapterOnClickHandler, LoaderManager.LoaderCallbacks<ArrayList<Movie>> {
 
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
     private static MovieAdapter mMovieAdapter;
     private static ActivityMainBinding mainActivityBinding;
+    private static final int MOVIE_LOADER_ID = 50;
+    private static final String SORT_PREFERENCE = "SORT_PREFERENCE";
+
+    Bundle bundle = new Bundle();
 
     protected static void showErrorMessage(String errorMessage) {
         Log.v(LOG_TAG, "Entering showErrorMessage method");
@@ -34,11 +42,18 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         Log.v(LOG_TAG, "Leaving showErrorMessage method");
     }
 
-    private static void showMovies() {
-        Log.v(LOG_TAG, "Entering showMovies method");
+    private void showMovies(String sortPreference) {
+        //Log.v(LOG_TAG, "Entering showMovies method");
         mainActivityBinding.errorMessage.setVisibility(View.INVISIBLE);
         mainActivityBinding.moviesRecyclerView.setVisibility(View.VISIBLE);
-        Log.v(LOG_TAG, "Leaving showMovies method");
+
+        if (sortPreference.equals(MoviePreferences.SORT_BY_POPULAR)) {
+            setTitle(R.string.most_popular);
+        }
+        if (sortPreference.equals(MoviePreferences.SORT_BY_TOP_RATED)) {
+            setTitle(R.string.top_rated);
+        }
+        //Log.v(LOG_TAG, "Leaving showMovies method");
     }
 
     @Override
@@ -60,14 +75,14 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         mainActivityBinding.moviesRecyclerView.setHasFixedSize(true);
 
         if (isConnectedToInternet()) {
-            loadMovies(MoviePreferences.DEFAULT_SORT_PREFERENCE);
+            loadMoviesOnStart(MoviePreferences.DEFAULT_SORT_PREFERENCE);
         }
         Log.v(LOG_TAG, "Leaving onCreate");
     }
 
     private boolean isConnectedToInternet() {
 
-        Log.v(LOG_TAG, "Entering isConnectedToInternet");
+        //Log.v(LOG_TAG, "Entering isConnectedToInternet");
         ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
         boolean isConnectedToInternet = (networkInfo != null) && networkInfo.isConnectedOrConnecting();
@@ -75,30 +90,39 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         if (!isConnectedToInternet) {
             Log.v(LOG_TAG, "Not connected to Internet");
             MainActivity.showErrorMessage(getString(R.string.no_active_network));
-            Log.v(LOG_TAG, "Leaving isConnectedToInternet");
+            //Log.v(LOG_TAG, "Leaving isConnectedToInternet");
             return false;
         } else {
-            Log.v(LOG_TAG, "Leaving isConnectedToInternet");
+            //Log.v(LOG_TAG, "Leaving isConnectedToInternet");
             return true;
         }
     }
 
+    private void loadMoviesOnStart(String sortPreference) {
+        //Log.v(LOG_TAG, "Entering loadMoviesOnStart method");
+
+        showMovies(sortPreference);
+        bundle.putString(SORT_PREFERENCE, sortPreference);
+        Log.v(LOG_TAG, "Initialising Loader");
+        getSupportLoaderManager().initLoader(MOVIE_LOADER_ID, bundle, MainActivity.this);
+
+        //Log.v(LOG_TAG, "Leaving loadMoviesOnStart method");
+    }
+
     private void loadMovies(String sortPreference) {
-        Log.v(LOG_TAG, "Entering loadMovies method");
-        showMovies();
-        if (sortPreference.equals(MoviePreferences.SORT_BY_POPULAR)) {
-            setTitle(R.string.most_popular);
-        }
-        if (sortPreference.equals(MoviePreferences.SORT_BY_TOP_RATED)) {
-            setTitle(R.string.top_rated);
-        }
-        new MovieAsyncTask(this, mainActivityBinding.movieProgressBar, mMovieAdapter).execute(sortPreference);
-        Log.v(LOG_TAG, "Leaving loadMovies method");
+        //Log.v(LOG_TAG, "Entering loadMovies method");
+
+        showMovies(sortPreference);
+        bundle.putString(SORT_PREFERENCE, sortPreference);
+        Log.v(LOG_TAG, "Restarting Loader");
+        getSupportLoaderManager().restartLoader(MOVIE_LOADER_ID, bundle, MainActivity.this);
+
+        //Log.v(LOG_TAG, "Leaving loadMovies method");
     }
 
     @Override
     public void performOnClick(Movie currentMovie) {
-        Log.v(LOG_TAG, "Entering performOnClick method");
+        //Log.v(LOG_TAG, "Entering performOnClick method");
         Intent intentToStartSpecificMovieDetail;
         Context context = this;
         Class destination = SpecificMovieDetail.class;
@@ -108,7 +132,12 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
 
         Log.v(LOG_TAG, "Starting specific movie details intent.");
         startActivity(intentToStartSpecificMovieDetail);
-        Log.v(LOG_TAG, "Leaving performOnClick method");
+        //Log.v(LOG_TAG, "Leaving performOnClick method");
+    }
+
+    void clearMovies() {
+        Log.v(LOG_TAG, "Clearing movies from adapter");
+        mMovieAdapter.setMovieData(null);
     }
 
     @Override
@@ -122,15 +151,16 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        Log.v(LOG_TAG, "Entering onOptionsItemSelected method");
+        Log.v(LOG_TAG, "Entering onOptionsItemSelected");
         int itemId = item.getItemId();
 
-        mMovieAdapter.setMovieData(null);
+        clearMovies();
 
         switch (itemId) {
 
             case R.id.refresh:
-                loadMovies(MoviePreferences.DEFAULT_SORT_PREFERENCE);
+                String sortPreference = bundle.getString(SORT_PREFERENCE);
+                loadMovies(sortPreference);
                 break;
 
             case R.id.top_rated:
@@ -143,7 +173,44 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
 
             default:
         }
-        Log.v(LOG_TAG, "Leaving onOptionsItemSelected method");
+        Log.v(LOG_TAG, "Leaving onOptionsItemSelected");
         return super.onOptionsItemSelected(item);
     }
+
+    @Override
+    public Loader onCreateLoader(int loaderID, Bundle bundle) {
+
+        Log.v(LOG_TAG, "Entering onCreateLoader");
+
+        Loader loader = new MovieAsyncTaskLoader(this, mainActivityBinding.movieProgressBar, mMovieAdapter, bundle);
+
+        Log.v(LOG_TAG, "Leaving onCreateLoader");
+
+        return loader;
+    }
+
+    @Override
+    public void onLoadFinished(Loader<ArrayList<Movie>> loader, ArrayList<Movie> movies) {
+
+        Log.v(LOG_TAG, "Entering onLoadFinished");
+
+        mainActivityBinding.movieProgressBar.setVisibility(View.INVISIBLE);
+        if (movies == null) {
+            Log.v(LOG_TAG, "No Movies to show");
+            MainActivity.showErrorMessage(getString(R.string.error_occurred));
+        } else {
+            //Log.v(LOG_TAG, "Movies sample: " + movies.get(0));
+            mMovieAdapter.setMovieData(movies);
+        }
+        Log.v(LOG_TAG, "Leaving onLoadFinished");
+
+    }
+
+    @Override
+    public void onLoaderReset(Loader loader) {
+        Log.v(LOG_TAG, "Entering onLoaderReset");
+        Log.v(LOG_TAG, "Leaving onLoaderReset");
+
+    }
 }
+
