@@ -8,4 +8,31 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="HeaderTextStyling" >
+
+        <item name="android:textSize">@dimen/text_size</item>
+        <item name="android:color">@android:color/black</item>
+        <item name="android:paddingLeft">@dimen/padding_left</item>
+        <item name="android:textStyle">italic</item>
+        <item name="android:paddingTop">@dimen/padding_top</item>
+        <item name="android:layout_height">@dimen/layout_height</item>
+
+    </style>
+
+    <style name="ValueTextStyling" >
+
+        <item name="android:textSize">@dimen/text_size</item>
+        <item name="android:color">@android:color/black</item>
+        <item name="android:paddingLeft">@dimen/padding_left</item>
+        <item name="android:paddingTop">@dimen/padding_top</item>
+        <item name="android:layout_height">@dimen/layout_height</item>
+
+    </style>
+
+    <style name="LayoutStyling">
+
+        <item name="android:padding">@dimen/padding</item>
+
+    </style>
+    
 </resources>
