@@ -34,6 +34,8 @@ public class MovieJSONParser {
     private final static int TARGET_WIDTH = 345;
     private final static int TARGET_HEIGHT = 380;
 
+    public final static String RATING_TOTAL_REFERENCE = "/10";
+
     public static ArrayList<Movie> getMovies(String movieJsonResponse) throws JSONException {
         Log.v(LOG_TAG, "Entering getMovies method");
 

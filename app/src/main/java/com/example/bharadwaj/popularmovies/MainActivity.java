@@ -103,7 +103,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
 
         showMovies(sortPreference);
         bundle.putString(SORT_PREFERENCE, sortPreference);
-        Log.v(LOG_TAG, "Initialising Loader");
+        Log.v(LOG_TAG, "Initializing Loader");
         getSupportLoaderManager().initLoader(MOVIE_LOADER_ID, bundle, MainActivity.this);
 
         //Log.v(LOG_TAG, "Leaving loadMoviesOnStart method");

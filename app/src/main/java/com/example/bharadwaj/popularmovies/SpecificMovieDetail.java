@@ -47,12 +47,14 @@ public class SpecificMovieDetail extends AppCompatActivity {
     private void setMovieDetailsToActivity(Movie movie) {
 
         //Setting title of page to selected movie name
-        setTitle(movie.getTitle());
+        //setTitle(movie.getTitle());
 
         MovieJSONParser.buildPosterFromPath(movie.getPosterPath(), specificMovieDetailBinding.moviePoster);
-        specificMovieDetailBinding.movieReleaseDateValue.setText(movie.getReleaseDate());
-        specificMovieDetailBinding.movieUserRatingValue.setText(movie.getUserRating());
+        specificMovieDetailBinding.movieName.setText(movie.getTitle());
+        specificMovieDetailBinding.movieReleaseYear.setText(movie.getReleaseDate());
+        specificMovieDetailBinding.movieUserRating.setText(movie.getUserRating() + MovieJSONParser.RATING_TOTAL_REFERENCE);
         specificMovieDetailBinding.moviePlot.setText(movie.getOverview());
+
 
     }
 

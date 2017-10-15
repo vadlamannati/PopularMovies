@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
@@ -8,31 +8,50 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
-    <style name="HeaderTextStyling" >
+    <style name="HeadTextStyle" >
 
-        <item name="android:textSize">@dimen/text_size</item>
+        <item name="android:textSize">@dimen/large_text_size</item>
+        <item name="android:color">@android:color/white</item>
+        <item name="android:paddingLeft">@dimen/padding_left</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily" tools:targetApi="jelly_bean">sans-serif</item>
+        <item name="android:paddingTop">@dimen/padding_top</item>
+        <item name="android:layout_height">@dimen/layout_height</item>
+
+    </style>
+
+    <style name="SubHeadTextStyle" >
+
+        <item name="android:textSize">@dimen/medium_text_size</item>
         <item name="android:color">@android:color/black</item>
         <item name="android:paddingLeft">@dimen/padding_left</item>
         <item name="android:textStyle">italic</item>
+        <item name="android:fontFamily" tools:targetApi="jelly_bean">sans-serif</item>
         <item name="android:paddingTop">@dimen/padding_top</item>
         <item name="android:layout_height">@dimen/layout_height</item>
 
     </style>
 
-    <style name="ValueTextStyling" >
+    <style name="ParagraghTextStyle" >
 
-        <item name="android:textSize">@dimen/text_size</item>
+        <item name="android:textSize">@dimen/small_text_size</item>
         <item name="android:color">@android:color/black</item>
         <item name="android:paddingLeft">@dimen/padding_left</item>
+        <item name="android:textStyle">italic</item>
+        <item name="android:fontFamily" tools:targetApi="jelly_bean">sans-serif</item>
         <item name="android:paddingTop">@dimen/padding_top</item>
         <item name="android:layout_height">@dimen/layout_height</item>
 
     </style>
 
-    <style name="LayoutStyling">
-
+    <style name="MainActivityStyle">
         <item name="android:padding">@dimen/padding</item>
-
+        <item name="android:background">@color/mainActivityBackgroundColor</item>
     </style>
-    
+
+    <style name="SpecificMovieStyle">
+        <item name="android:padding">@dimen/padding</item>
+        <item name="android:background">@color/movieDetailBackgroundColor</item>
+    </style>
+
 </resources>

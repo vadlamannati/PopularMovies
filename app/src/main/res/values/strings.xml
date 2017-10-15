@@ -9,6 +9,7 @@
     <string name="refresh">Refresh</string>
     <string name="movie_poster">Movie Poster</string>
     <string name="no_active_network">No active Network connection detected. Please connect to internet.</string>
+    <string name="movie_detail_title">Movie Details</string>
 
 
 </resources>
