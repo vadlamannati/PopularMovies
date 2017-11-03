@@ -4,8 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.databinding.DataBindingUtil;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
@@ -19,6 +17,8 @@ import android.view.View;
 
 import com.example.bharadwaj.popularmovies.databinding.ActivityMainBinding;
 import com.example.bharadwaj.popularmovies.movie_utilities.MoviePreferences;
+import com.example.bharadwaj.popularmovies.movie_utilities.NetworkUtils;
+import com.example.bharadwaj.popularmovies.movie_utilities.StringUtils;
 
 import java.util.ArrayList;
 
@@ -29,7 +29,6 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     private static MovieAdapter mMovieAdapter;
     private static ActivityMainBinding mainActivityBinding;
     private static final int MOVIE_LOADER_ID = 50;
-    private static final String SORT_PREFERENCE = "SORT_PREFERENCE";
 
     Bundle bundle = new Bundle();
 
@@ -74,35 +73,20 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         mainActivityBinding.moviesRecyclerView.setAdapter(mMovieAdapter);
         mainActivityBinding.moviesRecyclerView.setHasFixedSize(true);
 
-        if (isConnectedToInternet()) {
+        if (NetworkUtils.isConnectedToInternet(this)) {
             loadMoviesOnStart(MoviePreferences.DEFAULT_SORT_PREFERENCE);
+        }else {
+            MainActivity.showErrorMessage(getString(R.string.no_active_network));
         }
         Log.v(LOG_TAG, "Leaving onCreate");
     }
 
-    private boolean isConnectedToInternet() {
-
-        //Log.v(LOG_TAG, "Entering isConnectedToInternet");
-        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
-        boolean isConnectedToInternet = (networkInfo != null) && networkInfo.isConnectedOrConnecting();
-        Log.v(LOG_TAG, "Fetching active internet connection : " + isConnectedToInternet);
-        if (!isConnectedToInternet) {
-            Log.v(LOG_TAG, "Not connected to Internet");
-            MainActivity.showErrorMessage(getString(R.string.no_active_network));
-            //Log.v(LOG_TAG, "Leaving isConnectedToInternet");
-            return false;
-        } else {
-            //Log.v(LOG_TAG, "Leaving isConnectedToInternet");
-            return true;
-        }
-    }
 
     private void loadMoviesOnStart(String sortPreference) {
         //Log.v(LOG_TAG, "Entering loadMoviesOnStart method");
 
         showMovies(sortPreference);
-        bundle.putString(SORT_PREFERENCE, sortPreference);
+        bundle.putString(StringUtils.SORT_PREFERENCE, sortPreference);
         Log.v(LOG_TAG, "Initializing Loader");
         getSupportLoaderManager().initLoader(MOVIE_LOADER_ID, bundle, MainActivity.this);
 
@@ -113,7 +97,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         //Log.v(LOG_TAG, "Entering loadMovies method");
 
         showMovies(sortPreference);
-        bundle.putString(SORT_PREFERENCE, sortPreference);
+        bundle.putString(StringUtils.SORT_PREFERENCE, sortPreference);
         Log.v(LOG_TAG, "Restarting Loader");
         getSupportLoaderManager().restartLoader(MOVIE_LOADER_ID, bundle, MainActivity.this);
 
@@ -159,7 +143,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         switch (itemId) {
 
             case R.id.refresh:
-                String sortPreference = bundle.getString(SORT_PREFERENCE);
+                String sortPreference = bundle.getString(StringUtils.SORT_PREFERENCE);
                 loadMovies(sortPreference);
                 break;
 
@@ -179,13 +163,9 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
 
     @Override
     public Loader onCreateLoader(int loaderID, Bundle bundle) {
-
         Log.v(LOG_TAG, "Entering onCreateLoader");
-
         Loader loader = new MovieAsyncTaskLoader(this, mainActivityBinding.movieProgressBar, mMovieAdapter, bundle);
-
         Log.v(LOG_TAG, "Leaving onCreateLoader");
-
         return loader;
     }
 

@@ -21,13 +21,16 @@ public class Movie implements Parcelable {
             return new Movie[size];
         }
     };
+
+    private final String mID;
     private final String mTitle;
     private final String mPosterPath;
     private final String mOverview;
     private final String mUserRating;
     private final String mReleaseDate;
 
-    public Movie(String title, String posterPath, String overview, String userRating, String releaseDate) {
+    public Movie(String id, String title, String posterPath, String overview, String userRating, String releaseDate) {
+        this.mID = id;
         this.mTitle = title;
         this.mPosterPath = posterPath;
         this.mOverview = overview;
@@ -36,11 +39,16 @@ public class Movie implements Parcelable {
     }
 
     private Movie(Parcel movieParcel) {
+        mID = movieParcel.readString();
         mTitle = movieParcel.readString();
         mPosterPath = movieParcel.readString();
         mOverview = movieParcel.readString();
         mUserRating = movieParcel.readString();
         mReleaseDate = movieParcel.readString();
+    }
+
+    public String getID() {
+        return mID;
     }
 
     public String getTitle() {
@@ -70,6 +78,7 @@ public class Movie implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(mID);
         parcel.writeString(mTitle);
         parcel.writeString(mPosterPath);
         parcel.writeString(mOverview);
@@ -80,7 +89,8 @@ public class Movie implements Parcelable {
     @Override
     public String toString() {
 
-        return this.getTitle()
+        return this.getID()
+                + this.getTitle()
                 + this.getPosterPath()
                 + this.getOverview()
                 + this.getUserRating()
