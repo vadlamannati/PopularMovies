@@ -11,6 +11,7 @@
     <string name="no_active_network">No active Network connection detected. Please connect to internet.</string>
     <string name="movie_detail_title">Movie Details</string>
     <string name="trailerView">Trailer Item View</string>
+    <string name="trailerHeading">Trailers:</string>
 
 
 </resources>

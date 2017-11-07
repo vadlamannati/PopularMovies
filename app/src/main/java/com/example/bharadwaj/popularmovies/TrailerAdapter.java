@@ -45,7 +45,7 @@ public class TrailerAdapter extends RecyclerView.Adapter<TrailerAdapter.TrailerV
         Log.v(LOG_TAG, "Position is : " + position);
         Log.v(LOG_TAG, "Current Trailer is : " + trailer);
 
-        trailerHolder.mTrailerView.setText(String.valueOf(position));
+        trailerHolder.mTrailerView.setText(Trailer.TRAILER + String.valueOf(position));
         //MovieJSONParser.buildPosterFromPath(movie.getPosterPath(), movieHolder.mMovieThumbnail);
 
     }

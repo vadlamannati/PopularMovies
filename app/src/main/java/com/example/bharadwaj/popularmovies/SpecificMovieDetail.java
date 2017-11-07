@@ -1,8 +1,11 @@
 package com.example.bharadwaj.popularmovies;
 
+import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.databinding.DataBindingUtil;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
@@ -16,6 +19,8 @@ import com.example.bharadwaj.popularmovies.movie_utilities.MovieJSONParser;
 import com.example.bharadwaj.popularmovies.movie_utilities.NetworkUtils;
 
 import java.util.ArrayList;
+
+import static android.R.attr.id;
 
 public class SpecificMovieDetail extends AppCompatActivity implements TrailerAdapter.TrailerAdapterOnClickHandler, LoaderManager.LoaderCallbacks<ArrayList<Trailer>> {
 
@@ -115,19 +120,24 @@ public class SpecificMovieDetail extends AppCompatActivity implements TrailerAda
     @Override
     public void performOnClick(Trailer currentTrailer) {
         //Log.v(LOG_TAG, "Entering performOnClick method");
-        /*Intent intentToStartSpecificMovieDetail;
-        Context context = this;
-        Class destination = SpecificMovieDetail.class;
-
-        intentToStartSpecificMovieDetail = new Intent(context, destination);
-        intentToStartSpecificMovieDetail.putExtra(Intent.EXTRA_TEXT, currentMovie);
-
-        Log.v(LOG_TAG, "Starting specific movie details intent.");
-        startActivity(intentToStartSpecificMovieDetail);
-*/        //Log.v(LOG_TAG, "Leaving performOnClick method");
 
         Log.v(LOG_TAG, "Trailer item clicked : " + currentTrailer.getmKey());
 
+        startIntent(this, currentTrailer.getmKey());
+
+        //Log.v(LOG_TAG, "Leaving performOnClick method");
+    }
+
+    void startIntent(Context context, String key){
+
+        Intent appIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube:" + key));
+        Intent webIntent = new Intent(Intent.ACTION_VIEW,
+                Uri.parse("http://www.youtube.com/watch?v=" + key));
+        try {
+            context.startActivity(appIntent);
+        } catch (ActivityNotFoundException ex) {
+            context.startActivity(webIntent);
+        }
     }
 
     @Override

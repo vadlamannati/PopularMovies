@@ -6,6 +6,7 @@ package com.example.bharadwaj.popularmovies;
 
 public class Trailer {
 
+    public static final String TRAILER = "Trailer-";
     private String mKey;
 
     public Trailer(String key) {
