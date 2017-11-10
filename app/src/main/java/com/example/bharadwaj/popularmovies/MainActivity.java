@@ -19,6 +19,9 @@ import com.example.bharadwaj.popularmovies.databinding.ActivityMainBinding;
 import com.example.bharadwaj.popularmovies.movie_utilities.MoviePreferences;
 import com.example.bharadwaj.popularmovies.movie_utilities.NetworkUtils;
 import com.example.bharadwaj.popularmovies.movie_utilities.StringUtils;
+import com.example.bharadwaj.popularmovies.movies.Movie;
+import com.example.bharadwaj.popularmovies.movies.MovieAdapter;
+import com.example.bharadwaj.popularmovies.movies.MovieAsyncTaskLoader;
 
 import java.util.ArrayList;
 

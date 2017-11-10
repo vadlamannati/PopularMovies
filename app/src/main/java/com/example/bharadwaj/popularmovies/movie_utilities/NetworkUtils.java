@@ -24,6 +24,7 @@ public class NetworkUtils {
     private final static String LOG_TAG = NetworkUtils.class.getSimpleName();
     private final static String BASE_MOVIES_URL = "http://api.themoviedb.org/3/movie/";
     private final static String VIDEOS = "/videos";
+    private final static String REVIEWS = "/reviews";
 
     //Query parameters
     private final static String API_KEY_PARAM = "api_key";
@@ -90,6 +91,29 @@ public class NetworkUtils {
 
         Log.v(LOG_TAG, "URL Built : " + url);
         Log.v(LOG_TAG, "Leaving buildTrailerURL method");
+
+        return url;
+
+    }
+
+    public static URL buildReviewURL(String movieId) {
+        Log.v(LOG_TAG, "Entering buildReviewURL method");
+        Log.v(LOG_TAG, "Movie ID: " + movieId);
+
+        URL url = null;
+        Uri reviewURI = Uri.parse(BASE_MOVIES_URL + movieId + REVIEWS).buildUpon()
+                .appendQueryParameter(API_KEY_PARAM, API_KEY_VALUE)
+                .build();
+
+        try {
+            url = new URL(reviewURI.toString());
+        } catch (MalformedURLException e) {
+            Log.v(LOG_TAG, "Malformed URL exception occurred");
+            e.printStackTrace();
+        }
+
+        Log.v(LOG_TAG, "URL Built : " + url);
+        Log.v(LOG_TAG, "Leaving buildReviewURL method");
 
         return url;
 

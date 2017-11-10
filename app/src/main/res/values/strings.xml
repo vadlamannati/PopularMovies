@@ -12,6 +12,9 @@
     <string name="movie_detail_title">Movie Details</string>
     <string name="trailerView">Trailer Item View</string>
     <string name="trailerHeading">Trailers:</string>
+    <string name="reviewContent">Review Item View</string>
+    <string name="reviewHeading">Reviews:</string>
+    <string name="reviewAuthor">Review Author</string>
 
 
 </resources>

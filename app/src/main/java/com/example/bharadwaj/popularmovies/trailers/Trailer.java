@@ -1,4 +1,4 @@
-package com.example.bharadwaj.popularmovies;
+package com.example.bharadwaj.popularmovies.trailers;
 
 /**
  * Created by Bharadwaj on 10/15/17.

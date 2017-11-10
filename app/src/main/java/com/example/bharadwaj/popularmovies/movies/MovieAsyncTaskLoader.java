@@ -1,4 +1,4 @@
-package com.example.bharadwaj.popularmovies;
+package com.example.bharadwaj.popularmovies.movies;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -7,10 +7,9 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
 
-import com.example.bharadwaj.popularmovies.movie_utilities.MovieJSONParser;
+import com.example.bharadwaj.popularmovies.json_parsers.MovieJSONParser;
 import com.example.bharadwaj.popularmovies.movie_utilities.NetworkUtils;
 import com.example.bharadwaj.popularmovies.movie_utilities.StringUtils;
-import com.example.bharadwaj.popularmovies.movie_utilities.TrailerJSONParser;
 
 import org.json.JSONException;
 
@@ -18,25 +17,23 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 
-import static com.example.bharadwaj.popularmovies.movie_utilities.StringUtils.MOVIE_ID;
-
 /**
- * Created by Bharadwaj on 10/16/17.
+ * Created by Bharadwaj on 8/14/17.
  */
 
-public class TrailerAsyncTaskLoader extends AsyncTaskLoader<ArrayList<Trailer>> {
+public class MovieAsyncTaskLoader extends AsyncTaskLoader<ArrayList<Movie>> {
 
     private static final String LOG_TAG = MovieAsyncTaskLoader.class.getSimpleName();
     Context mContext;
     ProgressBar mProgressBar;
-    TrailerAdapter mTrailerAdapter;
+    MovieAdapter mMovieAdapter;
     Bundle mBundle;
 
-    public TrailerAsyncTaskLoader(Context context, ProgressBar mProgressBar, TrailerAdapter adapter, Bundle bundle) {
+    public MovieAsyncTaskLoader(Context context, ProgressBar mProgressBar, MovieAdapter adapter, Bundle bundle) {
         super(context);
         mContext = context;
         this.mProgressBar = mProgressBar;
-        mTrailerAdapter = adapter;
+        mMovieAdapter = adapter;
         mBundle = bundle;
     }
 
@@ -45,11 +42,11 @@ public class TrailerAsyncTaskLoader extends AsyncTaskLoader<ArrayList<Trailer>> 
         Log.v(LOG_TAG, "Entering onStartLoading");
         super.onStartLoading();
 
-        ArrayList<Trailer> trailers = mTrailerAdapter.getTrailers();
-        if(null != trailers){
-            deliverResult(trailers);
+        ArrayList<Movie> movies = mMovieAdapter.getMovies();
+        if(null != movies){
+            deliverResult(movies);
         }else {
-            Log.v(LOG_TAG, "No trailers to show. Generating");
+            Log.v(LOG_TAG, "No movies to show. Generating");
             mProgressBar.setVisibility(View.VISIBLE);
             forceLoad();
         }
@@ -58,19 +55,19 @@ public class TrailerAsyncTaskLoader extends AsyncTaskLoader<ArrayList<Trailer>> 
     }
 
     @Override
-    public ArrayList<Trailer> loadInBackground() {
+    public ArrayList<Movie> loadInBackground() {
 
 
         Log.v(LOG_TAG, "Entering loadInBackground");
 
-        String movieId = mBundle.getString(StringUtils.MOVIE_ID);
-        URL builtUrl = NetworkUtils.buildTrailerURL(movieId);
+        String sortPreference = mBundle.getString(StringUtils.SORT_PREFERENCE);
+        URL builtUrl = NetworkUtils.buildURL(sortPreference);
         Log.v(LOG_TAG, "URL built : " + builtUrl);
 
         try {
             String movieJsonResponse = NetworkUtils.getResponseFromHttpUrl(builtUrl);
             //Log.v(LOG_TAG, "Movie JSON data sample : " + movieJsonData[0]);
-            return TrailerJSONParser.getTrailers(movieJsonResponse);
+            return MovieJSONParser.getMovies(movieJsonResponse);
 
         } catch (IOException e) {
             Log.v(LOG_TAG, "IO Exception occurred");
@@ -86,9 +83,8 @@ public class TrailerAsyncTaskLoader extends AsyncTaskLoader<ArrayList<Trailer>> 
     }
 
     @Override
-    public void deliverResult(ArrayList<Trailer> trailers) {
+    public void deliverResult(ArrayList<Movie> movies) {
         Log.v(LOG_TAG, "Delivering result");
-        super.deliverResult(trailers);
+        super.deliverResult(movies);
     }
-
 }

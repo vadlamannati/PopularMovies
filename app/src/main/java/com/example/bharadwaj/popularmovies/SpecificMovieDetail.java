@@ -11,37 +11,57 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
 import android.util.Log;
 import android.view.View;
 
 import com.example.bharadwaj.popularmovies.databinding.ActivitySpecificMovieDetailBinding;
-import com.example.bharadwaj.popularmovies.movie_utilities.MovieJSONParser;
+import com.example.bharadwaj.popularmovies.json_parsers.MovieJSONParser;
 import com.example.bharadwaj.popularmovies.movie_utilities.NetworkUtils;
+import com.example.bharadwaj.popularmovies.movies.Movie;
+import com.example.bharadwaj.popularmovies.reviews.Review;
+import com.example.bharadwaj.popularmovies.reviews.ReviewAdapter;
+import com.example.bharadwaj.popularmovies.reviews.ReviewAsyncTaskLoader;
+import com.example.bharadwaj.popularmovies.trailers.Trailer;
+import com.example.bharadwaj.popularmovies.trailers.TrailerAdapter;
+import com.example.bharadwaj.popularmovies.trailers.TrailerAsyncTaskLoader;
 
 import java.util.ArrayList;
 
-import static android.R.attr.id;
-
-public class SpecificMovieDetail extends AppCompatActivity implements TrailerAdapter.TrailerAdapterOnClickHandler, LoaderManager.LoaderCallbacks<ArrayList<Trailer>> {
+public class SpecificMovieDetail extends AppCompatActivity implements
+        TrailerAdapter.TrailerAdapterOnClickHandler,
+        LoaderManager.LoaderCallbacks<ArrayList<? extends Object>>,
+        ReviewAdapter.ReviewAdapterOnClickHandler{
 
     private static final String LOG_TAG = SpecificMovieDetail.class.getSimpleName();
     private static final String VIDEOS = "videos";
     private static final String ID = "id";
     private static final int TRAILER_LOADER_ID = 51;
+    private static final int REVIEW_LOADER_ID = 52;
 
     //Using Binding to avoid findViewById multiple times. Binding is more faster as well.
     static ActivitySpecificMovieDetailBinding specificMovieDetailBinding;
     private TrailerAdapter mTrailerAdapter;
+    private ReviewAdapter mReviewAdapter;
 
     private Bundle mBundle = new Bundle();
 
-    protected static void showErrorMessage(String errorMessage) {
-        Log.v(LOG_TAG, "Entering showErrorMessage method");
+    protected static void showErrorMessageForTrailers(String errorMessage) {
+        Log.v(LOG_TAG, "Entering showErrorMessageForTrailers method");
         specificMovieDetailBinding.trailersErrorView.setText(errorMessage);
         specificMovieDetailBinding.movieTrailersView.setVisibility(View.INVISIBLE);
         specificMovieDetailBinding.trailersErrorView.setVisibility(View.VISIBLE);
         Log.v(LOG_TAG, "Error message shown : " + errorMessage);
-        Log.v(LOG_TAG, "Leaving showErrorMessage method");
+        Log.v(LOG_TAG, "Leaving showErrorMessageForTrailers method");
+    }
+
+    protected static void showErrorMessageforReviews(String errorMessage) {
+        Log.v(LOG_TAG, "Entering showErrorMessageforReviews method");
+        specificMovieDetailBinding.reviewsErrorView.setText(errorMessage);
+        specificMovieDetailBinding.movieReviewsView.setVisibility(View.INVISIBLE);
+        specificMovieDetailBinding.reviewsErrorView.setVisibility(View.VISIBLE);
+        Log.v(LOG_TAG, "Error message shown : " + errorMessage);
+        Log.v(LOG_TAG, "Leaving showErrorMessageforReviews method");
     }
 
     @Override
@@ -95,11 +115,25 @@ public class SpecificMovieDetail extends AppCompatActivity implements TrailerAda
                 loadTrailersOnStart(specificMovieDetails.getID());
             }
         } else {
-            SpecificMovieDetail.showErrorMessage(getString(R.string.no_active_network));
+            SpecificMovieDetail.showErrorMessageForTrailers(getString(R.string.no_active_network));
         }
+
+
+        //Fetching Reviews
+        mReviewAdapter = new ReviewAdapter(this);
+        specificMovieDetailBinding.movieReviewsView.setLayoutManager(new LinearLayoutManager(SpecificMovieDetail.this));
+        specificMovieDetailBinding.movieReviewsView.setAdapter(mReviewAdapter);
+        specificMovieDetailBinding.movieReviewsView.setHasFixedSize(true);
+
+        if (NetworkUtils.isConnectedToInternet(this)) {
+            if (null != specificMovieDetails) {
+                loadReviewsOnStart(specificMovieDetails.getID());
+            }
+        } else {
+            SpecificMovieDetail.showErrorMessageforReviews(getString(R.string.no_active_network));
+        }
+
         Log.v(LOG_TAG, "Leaving onCreate");
-
-
     }
 
     private void setMovieDetailsToActivity(Movie movie) {
@@ -117,19 +151,29 @@ public class SpecificMovieDetail extends AppCompatActivity implements TrailerAda
         getSupportLoaderManager().initLoader(TRAILER_LOADER_ID, mBundle, SpecificMovieDetail.this);
     }
 
+    private void loadReviewsOnStart(String movieID) {
+        //showMovies(sortPreference);
+        mBundle.putString(ID, movieID);
+        Log.v(LOG_TAG, "Initializing Loader");
+        getSupportLoaderManager().initLoader(REVIEW_LOADER_ID, mBundle, SpecificMovieDetail.this);
+    }
+
     @Override
     public void performOnClick(Trailer currentTrailer) {
         //Log.v(LOG_TAG, "Entering performOnClick method");
-
         Log.v(LOG_TAG, "Trailer item clicked : " + currentTrailer.getmKey());
-
-        startIntent(this, currentTrailer.getmKey());
-
+        startIntentForTrailer(this, currentTrailer.getmKey());
         //Log.v(LOG_TAG, "Leaving performOnClick method");
     }
 
-    void startIntent(Context context, String key){
+    @Override
+    public void performOnClick(Review currentReview) {
+        //Log.v(LOG_TAG, "Entering performOnClick method");
+        Log.v(LOG_TAG, "Review item clicked : " + currentReview.getContent());
+        //Log.v(LOG_TAG, "Leaving performOnClick method");
+    }
 
+    void startIntentForTrailer(Context context, String key){
         Intent appIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube:" + key));
         Intent webIntent = new Intent(Intent.ACTION_VIEW,
                 Uri.parse("http://www.youtube.com/watch?v=" + key));
@@ -143,23 +187,54 @@ public class SpecificMovieDetail extends AppCompatActivity implements TrailerAda
     @Override
     public Loader onCreateLoader(int loaderID, Bundle bundle) {
         Log.v(LOG_TAG, "Entering onCreateLoader");
-        Loader loader = new TrailerAsyncTaskLoader(this, specificMovieDetailBinding.trailerProgressBar, mTrailerAdapter, bundle);
+        Loader loader;
+        if(loaderID == TRAILER_LOADER_ID) {
+            loader = new TrailerAsyncTaskLoader(this, specificMovieDetailBinding.trailerProgressBar, mTrailerAdapter, bundle);
+        }else if(loaderID == REVIEW_LOADER_ID){
+            loader = new ReviewAsyncTaskLoader(this, specificMovieDetailBinding.reviewProgressBar, mReviewAdapter, bundle);
+        }else {
+            loader = null;
+        }
         Log.v(LOG_TAG, "Leaving onCreateLoader");
         return loader;
     }
 
     @Override
-    public void onLoadFinished(Loader<ArrayList<Trailer>> loader, ArrayList<Trailer> trailers) {
-
+    public void onLoadFinished(Loader<ArrayList<? extends Object>> loader, ArrayList<? extends Object> objects) {
         Log.v(LOG_TAG, "Entering onLoadFinished");
 
-        specificMovieDetailBinding.trailerProgressBar.setVisibility(View.INVISIBLE);
-        if (trailers == null) {
-            Log.v(LOG_TAG, "No Trailers to show");
-            SpecificMovieDetail.showErrorMessage(getString(R.string.error_occurred));
-        } else {
-            //Log.v(LOG_TAG, "Movies sample: " + movies.get(0));
+        ArrayList<Trailer> trailers;
+        ArrayList<Review> reviews;
+
+        if (objects == null) {
+            if(loader.getId() == TRAILER_LOADER_ID){
+                Log.v(LOG_TAG, "No Trailers to show");
+                SpecificMovieDetail.showErrorMessageForTrailers(getString(R.string.error_occurred));
+            }
+            if(loader.getId() == REVIEW_LOADER_ID){
+                Log.v(LOG_TAG, "No Reviews to show");
+                SpecificMovieDetail.showErrorMessageforReviews(getString(R.string.error_occurred));
+            }
+        } else if(objects.get(0) instanceof Trailer){
+            specificMovieDetailBinding.trailerProgressBar.setVisibility(View.INVISIBLE);
+
+            trailers = new ArrayList<Trailer>();
+            for (Object object: objects) {
+                if(object instanceof Trailer){
+                    trailers.add((Trailer) object);
+                }
+            }
             mTrailerAdapter.setTrailerData(trailers);
+        }else if(objects.get(0) instanceof Review){
+            specificMovieDetailBinding.reviewProgressBar.setVisibility(View.INVISIBLE);
+
+            reviews = new ArrayList<Review>();
+            for (Object object: objects) {
+                if(object instanceof Review){
+                    reviews.add((Review) object);
+                }
+            }
+            mReviewAdapter.setReviewData(reviews);
         }
         Log.v(LOG_TAG, "Leaving onLoadFinished");
 

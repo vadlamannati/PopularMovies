@@ -1,4 +1,4 @@
-package com.example.bharadwaj.popularmovies;
+package com.example.bharadwaj.popularmovies.movies;
 
 import android.os.Parcel;
 import android.os.Parcelable;

@@ -1,4 +1,4 @@
-package com.example.bharadwaj.popularmovies;
+package com.example.bharadwaj.popularmovies.trailers;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
@@ -7,8 +7,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.TextView;
-import android.widget.VideoView;
+
+import com.example.bharadwaj.popularmovies.R;
 
 import java.util.ArrayList;
 
@@ -86,7 +86,7 @@ public class TrailerAdapter extends RecyclerView.Adapter<TrailerAdapter.TrailerV
             mTrailerView = itemView.findViewById(R.id.trailer_item_view);
             //mTrailerView.;
             //Log.v(LOG_TAG, "Attaching movie overview view with ViewHolder");
-            itemView.setOnClickListener(this);
+            mTrailerView.setOnClickListener(this);
         }
 
         @Override

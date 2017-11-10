@@ -1,11 +1,11 @@
-package com.example.bharadwaj.popularmovies.movie_utilities;
+package com.example.bharadwaj.popularmovies.json_parsers;
 
 import android.net.Uri;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.widget.ImageView;
 
-import com.example.bharadwaj.popularmovies.Movie;
+import com.example.bharadwaj.popularmovies.movies.Movie;
 import com.example.bharadwaj.popularmovies.R;
 import com.squareup.picasso.Picasso;
 

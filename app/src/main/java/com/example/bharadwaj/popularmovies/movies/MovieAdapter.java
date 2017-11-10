@@ -1,4 +1,4 @@
-package com.example.bharadwaj.popularmovies;
+package com.example.bharadwaj.popularmovies.movies;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
@@ -8,7 +8,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
-import com.example.bharadwaj.popularmovies.movie_utilities.MovieJSONParser;
+import com.example.bharadwaj.popularmovies.R;
+import com.example.bharadwaj.popularmovies.json_parsers.MovieJSONParser;
 
 import java.util.ArrayList;
 
@@ -86,7 +87,8 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
             super(itemView);
             mMovieThumbnail = itemView.findViewById(R.id.movie_thumbnail);
             //Log.v(LOG_TAG, "Attaching movie overview view with ViewHolder");
-            itemView.setOnClickListener(this);
+            mMovieThumbnail.setOnClickListener(this);
+            //itemView.setOnClickListener(this); is working as well. But this isn't working for Trailers
         }
 
         @Override

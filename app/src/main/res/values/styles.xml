@@ -15,7 +15,6 @@
         <item name="android:paddingLeft">@dimen/padding_left</item>
         <item name="android:textStyle">bold</item>
         <item name="android:fontFamily" tools:targetApi="jelly_bean">sans-serif</item>
-        <item name="android:paddingTop">@dimen/padding_top</item>
         <item name="android:layout_height">@dimen/layout_height</item>
 
     </style>
@@ -27,7 +26,6 @@
         <item name="android:paddingLeft">@dimen/padding_left</item>
         <item name="android:textStyle">italic</item>
         <item name="android:fontFamily" tools:targetApi="jelly_bean">sans-serif</item>
-        <item name="android:paddingTop">@dimen/padding_top</item>
         <item name="android:layout_height">@dimen/layout_height</item>
 
     </style>
@@ -39,7 +37,6 @@
         <item name="android:paddingLeft">@dimen/padding_left</item>
         <item name="android:textStyle">italic</item>
         <item name="android:fontFamily" tools:targetApi="jelly_bean">sans-serif</item>
-        <item name="android:paddingTop">@dimen/padding_top</item>
         <item name="android:layout_height">@dimen/layout_height</item>
 
     </style>

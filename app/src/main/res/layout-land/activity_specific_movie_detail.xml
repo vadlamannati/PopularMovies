@@ -36,16 +36,16 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 app:layout_constraintGuide_percent="0.5"
-                tools:layout_editor_absoluteX="192dp"
-                tools:layout_editor_absoluteY="0dp" />
+                tools:layout_editor_absoluteX="184dp"
+                tools:layout_editor_absoluteY="81dp" />
 
             <ImageView
                 android:id="@+id/movie_poster"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
-                android:layout_marginLeft="16dp"
-                android:layout_marginRight="16dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="16dp"
                 app:layout_constraintLeft_toLeftOf="parent"
@@ -89,7 +89,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
-                android:layout_marginLeft="16dp"
+                android:layout_marginLeft="8dp"
                 android:layout_marginRight="8dp"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="16dp"
@@ -99,29 +99,45 @@
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/movie_poster" />
 
+            <View
+                android:id="@+id/trailers_saperator"
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_marginBottom="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="16dp"
+                android:background="@android:color/black"
+                app:layout_constraintBottom_toTopOf="@+id/trailers_heading"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/movie_plot"
+                app:layout_constraintVertical_bias="0.0" />
+
+            <TextView
+                android:id="@+id/trailers_heading"
+                style="@style/SubHeadTextStyle"
+                android:layout_width="352dp"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:text="@string/trailerHeading"
+                app:layout_constraintBottom_toTopOf="@+id/movie_trailers_view"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/trailers_saperator"
+                tools:layout_editor_absoluteX="8dp" />
+
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/movie_trailers_view"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintBottom_toTopOf="@+id/movie_reviews_view"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/movie_plot">
-
-            </android.support.v7.widget.RecyclerView>
-
-
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/movie_reviews_view"
-                android:layout_width="368dp"
-                android:layout_height="0dp"
-                android:layout_marginLeft="8dp"
-                android:layout_marginRight="8dp"
-                android:layout_marginTop="16dp"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/movie_trailers_view">
+                app:layout_constraintTop_toBottomOf="@+id/trailers_heading">
 
             </android.support.v7.widget.RecyclerView>
 
@@ -131,8 +147,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
+                android:layout_marginEnd="8dp"
                 android:layout_marginLeft="8dp"
                 android:layout_marginRight="8dp"
+                android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
                 app:layout_constraintBottom_toBottomOf="@+id/movie_trailers_view"
                 app:layout_constraintLeft_toLeftOf="@+id/movie_trailers_view"
@@ -144,13 +162,88 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
+                android:layout_marginEnd="8dp"
                 android:layout_marginLeft="8dp"
                 android:layout_marginRight="8dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
                 app:layout_constraintBottom_toBottomOf="@+id/movie_trailers_view"
-                app:layout_constraintBottom_toTopOf="@+id/movie_trailers_view"
                 app:layout_constraintLeft_toLeftOf="@+id/movie_trailers_view"
                 app:layout_constraintRight_toRightOf="@+id/movie_trailers_view"
+                app:layout_constraintTop_toTopOf="@+id/movie_trailers_view"
                 tools:text="trailers error" />
+
+            <View
+                android:id="@+id/reviews_saperator"
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_marginBottom="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:layout_marginStart="8dp"
+                android:background="@android:color/black"
+                app:layout_constraintBottom_toTopOf="@+id/reviews_heading"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/movie_trailers_view"
+                app:layout_constraintVertical_bias="0.0" />
+
+            <TextView
+                android:id="@+id/reviews_heading"
+                style="@style/SubHeadTextStyle"
+                android:layout_width="352dp"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:text="@string/reviewHeading"
+                app:layout_constraintBottom_toTopOf="@+id/movie_reviews_view"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/reviews_saperator"
+                tools:layout_editor_absoluteX="8dp" />
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/movie_reviews_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:layout_marginStart="8dp"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/movie_trailers_view">
+
+            </android.support.v7.widget.RecyclerView>
+
+            <ProgressBar
+                android:id="@+id/reviewProgressBar"
+                style="?android:attr/progressBarStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                app:layout_constraintBottom_toBottomOf="@+id/movie_reviews_view"
+                app:layout_constraintLeft_toLeftOf="@+id/movie_reviews_view"
+                app:layout_constraintRight_toRightOf="@+id/movie_reviews_view"
+                app:layout_constraintTop_toTopOf="@+id/movie_reviews_view" />
+
+            <TextView
+                android:id="@+id/reviews_error_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="0dp"
+                android:layout_marginRight="8dp"
+                app:layout_constraintBottom_toBottomOf="@+id/movie_reviews_view"
+                app:layout_constraintLeft_toLeftOf="@+id/movie_reviews_view"
+                app:layout_constraintRight_toRightOf="@+id/movie_reviews_view"
+                app:layout_constraintTop_toTopOf="@+id/movie_reviews_view"
+                tools:layout_editor_absoluteY="435dp"
+                tools:text="reviews error" />
 
 
         </android.support.constraint.ConstraintLayout>

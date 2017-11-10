@@ -1,9 +1,8 @@
-package com.example.bharadwaj.popularmovies.movie_utilities;
+package com.example.bharadwaj.popularmovies.json_parsers;
 
 import android.util.Log;
 
-import com.example.bharadwaj.popularmovies.Movie;
-import com.example.bharadwaj.popularmovies.Trailer;
+import com.example.bharadwaj.popularmovies.trailers.Trailer;
 
 import org.json.JSONArray;
 import org.json.JSONException;
