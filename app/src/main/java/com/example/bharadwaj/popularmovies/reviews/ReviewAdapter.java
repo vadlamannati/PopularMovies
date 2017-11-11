@@ -45,7 +45,7 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
         Log.v(LOG_TAG, "Position is : " + position);
         Log.v(LOG_TAG, "Current Review is : " + review);
 
-        reviewHolder.mReviewAuthorView.setText(String.valueOf(review.getAuthor()));
+        reviewHolder.mReviewAuthorView.setText(String.valueOf(review.getAuthor() + Review.SAYS));
         reviewHolder.mReviewContentView.setText(String.valueOf(review.getContent()));
         //MovieJSONParser.buildPosterFromPath(movie.getPosterPath(), movieHolder.mMovieThumbnail);
 

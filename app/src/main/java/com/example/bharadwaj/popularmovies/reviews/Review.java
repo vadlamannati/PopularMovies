@@ -8,6 +8,7 @@ public class Review {
 
     public static final String SAYS = " says,";
 
+    public static String mTotalResults;
     private String mAuthor;
     private String mContent;
 

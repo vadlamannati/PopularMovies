@@ -1,14 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <dimen name="large_text_size">28dp</dimen>
-    <dimen name="medium_text_size">20sp</dimen>
-    <dimen name="small_text_size">16sp</dimen>
-
-    <dimen name="layout_height">56dp</dimen>
+    <dimen name="large_text_size">32dp</dimen>
+    <dimen name="sub_head_text_size">26dp</dimen>
+    <dimen name="side_head_text_size">22dp</dimen>
+    <dimen name="paragraph_text_size">18dp</dimen>
 
     <dimen name="padding_left">8dp</dimen>
     <dimen name="padding_top">8dp</dimen>
     <dimen name="padding">8dp</dimen>
+
+    <dimen name="margin">8dp</dimen>
+
+    <dimen name="separator_margin_top">16dp</dimen>
+    <dimen name="separator_margin_bottom">8dp</dimen>
 
 </resources>

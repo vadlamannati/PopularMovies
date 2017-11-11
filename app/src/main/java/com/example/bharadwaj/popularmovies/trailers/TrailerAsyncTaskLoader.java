@@ -85,7 +85,7 @@ public class TrailerAsyncTaskLoader extends AsyncTaskLoader<ArrayList<Trailer>> 
 
     @Override
     public void deliverResult(ArrayList<Trailer> trailers) {
-        Log.v(LOG_TAG, "Delivering result");
+        Log.v(LOG_TAG, "Delivering Trailer result");
         super.deliverResult(trailers);
     }
 

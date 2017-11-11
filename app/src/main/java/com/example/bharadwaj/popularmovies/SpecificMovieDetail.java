@@ -51,6 +51,7 @@ public class SpecificMovieDetail extends AppCompatActivity implements
         specificMovieDetailBinding.trailersErrorView.setText(errorMessage);
         specificMovieDetailBinding.movieTrailersView.setVisibility(View.INVISIBLE);
         specificMovieDetailBinding.trailersErrorView.setVisibility(View.VISIBLE);
+        specificMovieDetailBinding.reviewProgressBar.setVisibility(View.INVISIBLE);
         Log.v(LOG_TAG, "Error message shown : " + errorMessage);
         Log.v(LOG_TAG, "Leaving showErrorMessageForTrailers method");
     }
@@ -60,8 +61,19 @@ public class SpecificMovieDetail extends AppCompatActivity implements
         specificMovieDetailBinding.reviewsErrorView.setText(errorMessage);
         specificMovieDetailBinding.movieReviewsView.setVisibility(View.INVISIBLE);
         specificMovieDetailBinding.reviewsErrorView.setVisibility(View.VISIBLE);
+        specificMovieDetailBinding.reviewProgressBar.setVisibility(View.INVISIBLE);
         Log.v(LOG_TAG, "Error message shown : " + errorMessage);
         Log.v(LOG_TAG, "Leaving showErrorMessageforReviews method");
+    }
+
+    protected static void emptyReviews(String message) {
+        Log.v(LOG_TAG, "Entering emptyReviews method");
+        specificMovieDetailBinding.reviewsErrorView.setText(message);
+        specificMovieDetailBinding.movieReviewsView.setVisibility(View.INVISIBLE);
+        specificMovieDetailBinding.reviewsErrorView.setVisibility(View.VISIBLE);
+        specificMovieDetailBinding.reviewProgressBar.setVisibility(View.INVISIBLE);
+        Log.v(LOG_TAG, "Message shown : " + message);
+        Log.v(LOG_TAG, "Leaving emptyReviews method");
     }
 
     @Override
@@ -202,38 +214,49 @@ public class SpecificMovieDetail extends AppCompatActivity implements
     @Override
     public void onLoadFinished(Loader<ArrayList<? extends Object>> loader, ArrayList<? extends Object> objects) {
         Log.v(LOG_TAG, "Entering onLoadFinished");
+        Log.v(LOG_TAG, "Loader ID : " + loader.getId());
 
-        ArrayList<Trailer> trailers;
-        ArrayList<Review> reviews;
-
-        if (objects == null) {
+        if ((objects == null || objects.size()==0) && Integer.parseInt(Review.mTotalResults) != 0) {
             if(loader.getId() == TRAILER_LOADER_ID){
-                Log.v(LOG_TAG, "No Trailers to show");
+                Log.v(LOG_TAG, "Couldn't fetch Trailers to show");
                 SpecificMovieDetail.showErrorMessageForTrailers(getString(R.string.error_occurred));
             }
             if(loader.getId() == REVIEW_LOADER_ID){
-                Log.v(LOG_TAG, "No Reviews to show");
+                Log.v(LOG_TAG, "Couldn't fetch Reviews to show");
                 SpecificMovieDetail.showErrorMessageforReviews(getString(R.string.error_occurred));
             }
-        } else if(objects.get(0) instanceof Trailer){
+            Log.v(LOG_TAG, "Leaving onLoadFinished");
+            return;
+        }
+
+        if(loader.getId() == TRAILER_LOADER_ID){
             specificMovieDetailBinding.trailerProgressBar.setVisibility(View.INVISIBLE);
 
-            trailers = new ArrayList<Trailer>();
+            ArrayList<Trailer> trailers = new ArrayList<>();
             for (Object object: objects) {
                 if(object instanceof Trailer){
                     trailers.add((Trailer) object);
                 }
             }
+            Log.v(LOG_TAG, "Attaching Trailers to adapter");
             mTrailerAdapter.setTrailerData(trailers);
-        }else if(objects.get(0) instanceof Review){
-            specificMovieDetailBinding.reviewProgressBar.setVisibility(View.INVISIBLE);
+        }
 
-            reviews = new ArrayList<Review>();
-            for (Object object: objects) {
+        if(loader.getId() == REVIEW_LOADER_ID){
+            specificMovieDetailBinding.reviewProgressBar.setVisibility(View.INVISIBLE);
+            if (Integer.parseInt(Review.mTotalResults) == 0) {
+                Log.v(LOG_TAG, "This movie doesn't have any Reviews to show");
+                SpecificMovieDetail.emptyReviews(getString(R.string.empty_reviews));
+                Log.v(LOG_TAG, "Leaving onLoadFinished");
+                return;
+            }
+            ArrayList<Review> reviews = new ArrayList<>();
+            for (Object object : objects) {
                 if(object instanceof Review){
                     reviews.add((Review) object);
                 }
             }
+            Log.v(LOG_TAG, "Attaching reviews to adapter");
             mReviewAdapter.setReviewData(reviews);
         }
         Log.v(LOG_TAG, "Leaving onLoadFinished");

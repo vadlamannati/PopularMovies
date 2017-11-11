@@ -68,7 +68,7 @@ public class ReviewAsyncTaskLoader extends AsyncTaskLoader<ArrayList<Review>> {
         try {
             String movieJsonResponse = NetworkUtils.getResponseFromHttpUrl(builtUrl);
             reviews = ReviewJSONParser.getReviews(movieJsonResponse);
-            Log.v(LOG_TAG, "Movie JSON data sample : " + reviews.get(0));
+            //Log.v(LOG_TAG, "Movie JSON data sample : " + reviews.get(0));
             return reviews;
         } catch (IOException e) {
             Log.v(LOG_TAG, "IO Exception occurred");
@@ -85,7 +85,7 @@ public class ReviewAsyncTaskLoader extends AsyncTaskLoader<ArrayList<Review>> {
 
     @Override
     public void deliverResult(ArrayList<Review> reviews) {
-        Log.v(LOG_TAG, "Delivering result");
+        Log.v(LOG_TAG, "Delivering Review result");
         super.deliverResult(reviews);
     }
 

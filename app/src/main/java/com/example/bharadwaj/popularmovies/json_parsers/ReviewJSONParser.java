@@ -9,6 +9,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.net.HttpURLConnection;
+import java.net.InterfaceAddress;
 import java.util.ArrayList;
 
 /**
@@ -22,6 +23,7 @@ public class ReviewJSONParser {
     private final static String CONTENT = "content";
 
     private final static String RESULTS = "results";
+    private final static String TOTAL_RESULTS = "total_results";
     private final static String ERROR_CODE = "cod";
 
     public static ArrayList<Review> getReviews(String reviewJsonResponse) throws JSONException {
@@ -47,6 +49,11 @@ public class ReviewJSONParser {
                     return null;
             }
 
+        }
+
+        Review.mTotalResults = reviewJsonResponseObject.getString(TOTAL_RESULTS);
+        if(Integer.parseInt(Review.mTotalResults) == 0){
+            return null;
         }
 
         reviewResultsArray = reviewJsonResponseObject.getJSONArray(RESULTS);

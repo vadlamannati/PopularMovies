@@ -77,7 +77,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         mainActivityBinding.moviesRecyclerView.setHasFixedSize(true);
 
         if (NetworkUtils.isConnectedToInternet(this)) {
-            loadMoviesOnStart(MoviePreferences.DEFAULT_SORT_PREFERENCE);
+            loadMovies(MoviePreferences.DEFAULT_SORT_PREFERENCE);
         }else {
             MainActivity.showErrorMessage(getString(R.string.no_active_network));
         }
