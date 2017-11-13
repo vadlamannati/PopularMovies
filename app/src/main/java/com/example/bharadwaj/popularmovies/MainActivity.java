@@ -3,12 +3,14 @@ package com.example.bharadwaj.popularmovies;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.database.Cursor;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -16,6 +18,8 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.example.bharadwaj.popularmovies.databinding.ActivityMainBinding;
+import com.example.bharadwaj.popularmovies.favorites.FavoriteAsyncTaskLoader;
+import com.example.bharadwaj.popularmovies.favorites.FavoritesAdapter;
 import com.example.bharadwaj.popularmovies.movie_utilities.MoviePreferences;
 import com.example.bharadwaj.popularmovies.movie_utilities.NetworkUtils;
 import com.example.bharadwaj.popularmovies.movie_utilities.StringUtils;
@@ -26,13 +30,16 @@ import com.example.bharadwaj.popularmovies.movies.MovieAsyncTaskLoader;
 import java.util.ArrayList;
 
 
-public class MainActivity extends AppCompatActivity implements MovieAdapter.MovieAdapterOnClickHandler, LoaderManager.LoaderCallbacks<ArrayList<Movie>> {
+public class MainActivity extends AppCompatActivity implements
+        MovieAdapter.MovieAdapterOnClickHandler,
+        LoaderManager.LoaderCallbacks<Object>{
 
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
-    private static MovieAdapter mMovieAdapter;
-    private static ActivityMainBinding mainActivityBinding;
     private static final int MOVIE_LOADER_ID = 50;
-
+    private static final int FAVORITES_LOADER_ID = 51;
+    private static MovieAdapter mMovieAdapter;
+    private static FavoritesAdapter mFavoritesAdapter;
+    private static ActivityMainBinding mainActivityBinding;
     Bundle bundle = new Bundle();
 
     protected static void showErrorMessage(String errorMessage) {
@@ -54,6 +61,9 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         }
         if (sortPreference.equals(MoviePreferences.SORT_BY_TOP_RATED)) {
             setTitle(R.string.top_rated);
+        }
+        if (sortPreference.equalsIgnoreCase("favorites")){
+            setTitle(R.string.favorites);
         }
         //Log.v(LOG_TAG, "Leaving showMovies method");
     }
@@ -85,7 +95,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     }
 
 
-    private void loadMoviesOnStart(String sortPreference) {
+    /*private void loadMoviesOnStart(String sortPreference) {
         //Log.v(LOG_TAG, "Entering loadMoviesOnStart method");
 
         showMovies(sortPreference);
@@ -94,7 +104,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         getSupportLoaderManager().initLoader(MOVIE_LOADER_ID, bundle, MainActivity.this);
 
         //Log.v(LOG_TAG, "Leaving loadMoviesOnStart method");
-    }
+    }*/
 
     private void loadMovies(String sortPreference) {
         //Log.v(LOG_TAG, "Entering loadMovies method");
@@ -105,6 +115,21 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         getSupportLoaderManager().restartLoader(MOVIE_LOADER_ID, bundle, MainActivity.this);
 
         //Log.v(LOG_TAG, "Leaving loadMovies method");
+    }
+
+    private void loadFavoriteMovies() {
+        Log.v(LOG_TAG, "Entering loadFavoriteMovies method");
+
+        mFavoritesAdapter = new FavoritesAdapter(this);
+        mainActivityBinding.moviesRecyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
+        mainActivityBinding.moviesRecyclerView.setAdapter(mFavoritesAdapter);
+        mainActivityBinding.moviesRecyclerView.setHasFixedSize(true);
+
+        showMovies("favorites");
+        Log.v(LOG_TAG, "Restarting Loader");
+        getSupportLoaderManager().restartLoader(FAVORITES_LOADER_ID, bundle, MainActivity.this);
+
+        Log.v(LOG_TAG, "Leaving loadFavoriteMovies method");
     }
 
     @Override
@@ -158,6 +183,10 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
                 loadMovies(MoviePreferences.SORT_BY_POPULAR);
                 break;
 
+            case R.id.favorites:
+                loadFavoriteMovies();
+                break;
+
             default:
         }
         Log.v(LOG_TAG, "Leaving onOptionsItemSelected");
@@ -167,27 +196,45 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     @Override
     public Loader onCreateLoader(int loaderID, Bundle bundle) {
         Log.v(LOG_TAG, "Entering onCreateLoader");
-        Loader loader = new MovieAsyncTaskLoader(this, mainActivityBinding.movieProgressBar, mMovieAdapter, bundle);
+
+        Log.v(LOG_TAG, "LOADER ID : " + loaderID);
+        Loader loader = null;
+        if(loaderID == MOVIE_LOADER_ID){
+            loader = new MovieAsyncTaskLoader(this, mainActivityBinding.movieProgressBar, mMovieAdapter, bundle);
+        }else if(loaderID == FAVORITES_LOADER_ID){
+            loader = new FavoriteAsyncTaskLoader(this, mainActivityBinding.movieProgressBar,mFavoritesAdapter , bundle);
+        }
         Log.v(LOG_TAG, "Leaving onCreateLoader");
         return loader;
     }
 
     @Override
-    public void onLoadFinished(Loader<ArrayList<Movie>> loader, ArrayList<Movie> movies) {
+    public void onLoadFinished(Loader<Object> loader, Object objects) {
 
         Log.v(LOG_TAG, "Entering onLoadFinished");
+        Log.v(LOG_TAG, "LOADER ID : " + loader.getId());
 
         mainActivityBinding.movieProgressBar.setVisibility(View.INVISIBLE);
-        if (movies == null) {
+        if (objects == null) {
             Log.v(LOG_TAG, "No Movies to show");
             MainActivity.showErrorMessage(getString(R.string.error_occurred));
-        } else {
+            return;
+        }
+        if (objects.getClass().getName().equals(ArrayList.class.getName())) {
             //Log.v(LOG_TAG, "Movies sample: " + movies.get(0));
+            ArrayList<Movie> movies;
+            movies = (ArrayList<Movie>) objects;
             mMovieAdapter.setMovieData(movies);
         }
+        if (objects.getClass().getName().equals(Cursor.class.getName())) {
+            //Log.v(LOG_TAG, "Movies sample: " + movies.get(0));
+            Cursor cursor;
+            cursor = (Cursor) objects;
+            mFavoritesAdapter.setCursor(cursor);
+        }
         Log.v(LOG_TAG, "Leaving onLoadFinished");
-
     }
+
 
     @Override
     public void onLoaderReset(Loader loader) {

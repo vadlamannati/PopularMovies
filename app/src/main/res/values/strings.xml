@@ -16,6 +16,8 @@
     <string name="reviewHeading">Reviews:</string>
     <string name="reviewAuthor">Review Author</string>
     <string name="empty_reviews">This movie doesn\'t have reviews to show</string>
+    <string name="favorites">My Favorites</string>
+    <string name="movie_name">Movie Name</string>
 
 
 </resources>

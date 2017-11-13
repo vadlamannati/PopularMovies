@@ -7,6 +7,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.example.bharadwaj.popularmovies.R;
 import com.example.bharadwaj.popularmovies.json_parsers.MovieJSONParser;
@@ -17,7 +19,7 @@ import java.util.ArrayList;
  * @author Bharadwaj on 8/6/17.
  */
 
-public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHolder> {
+public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHolder>{
     private static final String LOG_TAG = MovieAdapter.class.getSimpleName();
     private final MovieAdapterOnClickHandler mOnClickHandler;
     private ArrayList<Movie> mMovieData;

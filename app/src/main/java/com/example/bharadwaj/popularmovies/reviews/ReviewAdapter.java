@@ -18,11 +18,10 @@ import java.util.ArrayList;
 
 public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewViewHolder > {
     private static final String LOG_TAG = ReviewAdapter.class.getSimpleName();
-    private final ReviewAdapterOnClickHandler mOnClickHandler;
     private ArrayList<Review> mReviewData;
 
-    public ReviewAdapter(ReviewAdapterOnClickHandler onClickHandler) {
-        mOnClickHandler = onClickHandler;
+    public ReviewAdapter() {
+        super();
     }
 
     @Override
@@ -73,11 +72,7 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
         return mReviewData;
     }
 
-    public interface ReviewAdapterOnClickHandler {
-        void performOnClick(Review currentReview);
-    }
-
-    public class ReviewViewHolder  extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public class ReviewViewHolder  extends RecyclerView.ViewHolder{
 
         private TextView mReviewAuthorView;
         private TextView mReviewContentView;
@@ -87,15 +82,6 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
             super(itemView);
             mReviewAuthorView = itemView.findViewById(R.id.review_author);
             mReviewContentView = itemView.findViewById(R.id.review_content);
-            itemView.setOnClickListener(this);
-        }
-
-        @Override
-        public void onClick(View view) {
-            //Log.v(LOG_TAG, "Entering onClick method in ViewHolder");
-            int currentAdapterPosition = getAdapterPosition();
-            Review currentReview = mReviewData.get(currentAdapterPosition);
-            mOnClickHandler.performOnClick(currentReview);
         }
     }
 

@@ -4,6 +4,7 @@ import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.database.Cursor;
 import android.databinding.DataBindingUtil;
 import android.net.Uri;
 import android.os.Bundle;
@@ -12,12 +13,19 @@ import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 
 import com.example.bharadwaj.popularmovies.databinding.ActivitySpecificMovieDetailBinding;
+import com.example.bharadwaj.popularmovies.favorites.FavoriteContract;
 import com.example.bharadwaj.popularmovies.json_parsers.MovieJSONParser;
+import com.example.bharadwaj.popularmovies.movie_utilities.MoviePreferences;
 import com.example.bharadwaj.popularmovies.movie_utilities.NetworkUtils;
+import com.example.bharadwaj.popularmovies.movie_utilities.StringUtils;
 import com.example.bharadwaj.popularmovies.movies.Movie;
 import com.example.bharadwaj.popularmovies.reviews.Review;
 import com.example.bharadwaj.popularmovies.reviews.ReviewAdapter;
@@ -25,13 +33,17 @@ import com.example.bharadwaj.popularmovies.reviews.ReviewAsyncTaskLoader;
 import com.example.bharadwaj.popularmovies.trailers.Trailer;
 import com.example.bharadwaj.popularmovies.trailers.TrailerAdapter;
 import com.example.bharadwaj.popularmovies.trailers.TrailerAsyncTaskLoader;
+import com.github.ivbaranov.mfb.MaterialFavoriteButton;
 
 import java.util.ArrayList;
+import com.example.bharadwaj.popularmovies.favorites.FavoriteContract.Favorites;
+
+import static android.icu.lang.UCharacter.GraphemeClusterBreak.L;
+import static android.webkit.ConsoleMessage.MessageLevel.LOG;
 
 public class SpecificMovieDetail extends AppCompatActivity implements
         TrailerAdapter.TrailerAdapterOnClickHandler,
-        LoaderManager.LoaderCallbacks<ArrayList<? extends Object>>,
-        ReviewAdapter.ReviewAdapterOnClickHandler{
+        LoaderManager.LoaderCallbacks<Object>{
 
     private static final String LOG_TAG = SpecificMovieDetail.class.getSimpleName();
     private static final String VIDEOS = "videos";
@@ -43,7 +55,7 @@ public class SpecificMovieDetail extends AppCompatActivity implements
     static ActivitySpecificMovieDetailBinding specificMovieDetailBinding;
     private TrailerAdapter mTrailerAdapter;
     private ReviewAdapter mReviewAdapter;
-
+    private Movie specificMovieDetails = null;
     private Bundle mBundle = new Bundle();
 
     protected static void showErrorMessageForTrailers(String errorMessage) {
@@ -80,6 +92,26 @@ public class SpecificMovieDetail extends AppCompatActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+       /* Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        //in the toolbar
+        MaterialFavoriteButton toolbarFavorite = new MaterialFavoriteButton.Builder(this) //
+                .favorite(true)
+                .color(MaterialFavoriteButton.STYLE_WHITE)
+                .type(MaterialFavoriteButton.STYLE_HEART)
+                .rotationDuration(400)
+                .create();
+        toolbar.addView(toolbarFavorite);
+        toolbarFavorite.setOnFavoriteChangeListener(
+                new MaterialFavoriteButton.OnFavoriteChangeListener() {
+                    @Override
+                    public void onFavoriteChanged(MaterialFavoriteButton buttonView, boolean favorite) {
+                       Log.v(LOG_TAG, "onFavoriteChanged invoked");
+                    }
+                });
+*/
+
         specificMovieDetailBinding = DataBindingUtil.setContentView(this, R.layout.activity_specific_movie_detail);
 
         Log.v(LOG_TAG, "Action bar : " + getActionBar());
@@ -94,7 +126,6 @@ public class SpecificMovieDetail extends AppCompatActivity implements
 
         Intent intentSourceActivity = getIntent();
         Log.v(LOG_TAG, "Intent received : " + intentSourceActivity.toString());
-        Movie specificMovieDetails = null;
 
         if (intentSourceActivity.getExtras() != null) {
             if (intentSourceActivity.hasExtra(Intent.EXTRA_TEXT)) {
@@ -132,7 +163,7 @@ public class SpecificMovieDetail extends AppCompatActivity implements
 
 
         //Fetching Reviews
-        mReviewAdapter = new ReviewAdapter(this);
+        mReviewAdapter = new ReviewAdapter();
         specificMovieDetailBinding.movieReviewsView.setLayoutManager(new LinearLayoutManager(SpecificMovieDetail.this));
         specificMovieDetailBinding.movieReviewsView.setAdapter(mReviewAdapter);
         specificMovieDetailBinding.movieReviewsView.setHasFixedSize(true);
@@ -178,13 +209,6 @@ public class SpecificMovieDetail extends AppCompatActivity implements
         //Log.v(LOG_TAG, "Leaving performOnClick method");
     }
 
-    @Override
-    public void performOnClick(Review currentReview) {
-        //Log.v(LOG_TAG, "Entering performOnClick method");
-        Log.v(LOG_TAG, "Review item clicked : " + currentReview.getContent());
-        //Log.v(LOG_TAG, "Leaving performOnClick method");
-    }
-
     void startIntentForTrailer(Context context, String key){
         Intent appIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube:" + key));
         Intent webIntent = new Intent(Intent.ACTION_VIEW,
@@ -194,6 +218,40 @@ public class SpecificMovieDetail extends AppCompatActivity implements
         } catch (ActivityNotFoundException ex) {
             context.startActivity(webIntent);
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        Log.v(LOG_TAG, "Entering onCreateOptionsMenu method");
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.favorites, menu);
+        Log.v(LOG_TAG, "Leaving onCreateOptionsMenu method");
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        Log.v(LOG_TAG, "Entering onOptionsItemSelected");
+        int itemId = item.getItemId();
+        switch (itemId) {
+
+            case R.id.favorite_button:
+
+                Log.v(LOG_TAG, "--------RUNNING QUERY : " + Favorites.CONTENT_URI);
+                Cursor cursor = getContentResolver().query(Favorites.CONTENT_URI,
+                        null,
+                        null,null,null);
+                if(cursor.getCount()==0){
+                    //implement
+                    Log.v(LOG_TAG, "No records in Favorites table");
+                }
+
+                break;
+
+            default:
+        }
+        Log.v(LOG_TAG, "Leaving onOptionsItemSelected");
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -212,11 +270,11 @@ public class SpecificMovieDetail extends AppCompatActivity implements
     }
 
     @Override
-    public void onLoadFinished(Loader<ArrayList<? extends Object>> loader, ArrayList<? extends Object> objects) {
+    public void onLoadFinished(Loader<Object> loader, Object objects) {
         Log.v(LOG_TAG, "Entering onLoadFinished");
         Log.v(LOG_TAG, "Loader ID : " + loader.getId());
 
-        if ((objects == null || objects.size()==0) && Integer.parseInt(Review.mTotalResults) != 0) {
+        if (objects == null && Integer.parseInt(Review.mTotalResults) != 0) {
             if(loader.getId() == TRAILER_LOADER_ID){
                 Log.v(LOG_TAG, "Couldn't fetch Trailers to show");
                 SpecificMovieDetail.showErrorMessageForTrailers(getString(R.string.error_occurred));
@@ -233,11 +291,8 @@ public class SpecificMovieDetail extends AppCompatActivity implements
             specificMovieDetailBinding.trailerProgressBar.setVisibility(View.INVISIBLE);
 
             ArrayList<Trailer> trailers = new ArrayList<>();
-            for (Object object: objects) {
-                if(object instanceof Trailer){
-                    trailers.add((Trailer) object);
-                }
-            }
+            trailers = (ArrayList<Trailer>)objects;
+
             Log.v(LOG_TAG, "Attaching Trailers to adapter");
             mTrailerAdapter.setTrailerData(trailers);
         }
@@ -251,11 +306,8 @@ public class SpecificMovieDetail extends AppCompatActivity implements
                 return;
             }
             ArrayList<Review> reviews = new ArrayList<>();
-            for (Object object : objects) {
-                if(object instanceof Review){
-                    reviews.add((Review) object);
-                }
-            }
+            reviews = (ArrayList<Review>)objects;
+
             Log.v(LOG_TAG, "Attaching reviews to adapter");
             mReviewAdapter.setReviewData(reviews);
         }
@@ -267,7 +319,5 @@ public class SpecificMovieDetail extends AppCompatActivity implements
     public void onLoaderReset(Loader loader) {
         Log.v(LOG_TAG, "Entering onLoaderReset");
         Log.v(LOG_TAG, "Leaving onLoaderReset");
-
     }
-
 }

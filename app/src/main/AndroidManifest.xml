@@ -30,6 +30,11 @@
             android:label="@string/movie_detail_title"
             android:parentActivityName=".MainActivity"/>
 
+        <provider
+            android:name=".favorites.FavoriteContentProvider"
+            android:authorities="com.example.bharadwaj.popularmovies"
+            android:exported="false" />
+
     </application>
 
 </manifest>
