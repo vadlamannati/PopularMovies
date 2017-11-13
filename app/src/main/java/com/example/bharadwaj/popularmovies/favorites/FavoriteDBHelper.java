@@ -28,8 +28,8 @@ public class FavoriteDBHelper extends SQLiteOpenHelper {
         Log.v(LOGTAG, "Entering onCreate");
         final String TABLE_NAME = "CREATE TABLE "  + Favorites.TABLE_NAME + " (" +
                 Favorites._ID                + " INTEGER PRIMARY KEY, " +
-                Favorites.COLUMN_MOVIE_ID    + " STRING NOT NULL, " +
-                Favorites.COLUMN_MOVIE_NAME  + " STRING NOT NULL);";
+                Favorites.COLUMN_MOVIE_ID    + " TEXT NOT NULL, " +
+                Favorites.COLUMN_MOVIE_NAME  + " TEXT NOT NULL);";
 
         Log.v(LOGTAG, "Creating Table: " + TABLE_NAME);
         favoritesDB.execSQL(TABLE_NAME);

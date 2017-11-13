@@ -3,7 +3,21 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <ScrollView
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/my_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"
+            android:elevation="4dp"
+            android:theme="@style/AppTheme"
+            app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
+
+        <ScrollView
         style="@style/SpecificMovieStyle"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -12,7 +26,6 @@
             android:id="@+id/specific_movie_detail_layout"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
-
 
             <TextView
                 android:id="@+id/movie_name"
@@ -191,5 +204,6 @@
         </android.support.constraint.ConstraintLayout>
 
     </ScrollView>
+    </LinearLayout>
 
 </layout>

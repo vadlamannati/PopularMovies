@@ -1,6 +1,7 @@
 package com.example.bharadwaj.popularmovies;
 
 import android.content.ActivityNotFoundException;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -38,6 +39,7 @@ import com.github.ivbaranov.mfb.MaterialFavoriteButton;
 import java.util.ArrayList;
 import com.example.bharadwaj.popularmovies.favorites.FavoriteContract.Favorites;
 
+import static android.R.id.input;
 import static android.icu.lang.UCharacter.GraphemeClusterBreak.L;
 import static android.webkit.ConsoleMessage.MessageLevel.LOG;
 
@@ -92,6 +94,8 @@ public class SpecificMovieDetail extends AppCompatActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
+        setSupportActionBar(myToolbar);
        /* Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -121,7 +125,7 @@ public class SpecificMovieDetail extends AppCompatActivity implements
             Log.v(LOG_TAG, "Support action bar : " + getSupportActionBar());
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         } else {
-            Log.v(LOG_TAG, "Support Action Bar is null");
+            Log.v(LOG_TAG, "Support Action Bar is : " + this.getSupportActionBar());
         }
 
         Intent intentSourceActivity = getIntent();
@@ -238,12 +242,28 @@ public class SpecificMovieDetail extends AppCompatActivity implements
             case R.id.favorite_button:
 
                 Log.v(LOG_TAG, "--------RUNNING QUERY : " + Favorites.CONTENT_URI);
+
+                ContentValues contentValues = new ContentValues();
+                contentValues.put(Favorites.COLUMN_MOVIE_ID, specificMovieDetails.getID());
+                contentValues.put(Favorites.COLUMN_MOVIE_NAME, specificMovieDetails.getTitle());
+
+                Uri insertedRowUri = getContentResolver().insert(Favorites.CONTENT_URI, contentValues);
+                Log.v(LOG_TAG, "Inserted Row Uri is : " + insertedRowUri.getPath());
+
+
+                String selection = Favorites.COLUMN_MOVIE_ID + "= ?";
+                String[] selectionArgs = {specificMovieDetails.getID()};
+
                 Cursor cursor = getContentResolver().query(Favorites.CONTENT_URI,
                         null,
-                        null,null,null);
+                        selection,
+                        selectionArgs,
+                        null);
                 if(cursor.getCount()==0){
                     //implement
                     Log.v(LOG_TAG, "No records in Favorites table");
+                }else {
+                    Log.v(LOG_TAG, "record count : " + cursor.getCount());
                 }
 
                 break;

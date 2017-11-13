@@ -28,7 +28,8 @@
 
         <activity android:name=".SpecificMovieDetail"
             android:label="@string/movie_detail_title"
-            android:parentActivityName=".MainActivity"/>
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
 
         <provider
             android:name=".favorites.FavoriteContentProvider"
