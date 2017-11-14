@@ -54,9 +54,9 @@ public class FavoriteContentProvider extends ContentProvider {
                         @Nullable String selection,
                         @Nullable String[] selectionArgs,
                         @Nullable String sortOrder) {
-        final SQLiteDatabase favoriteDB = mFavoriteDBHelper.getReadableDatabase();
+        final SQLiteDatabase favoritesDB = mFavoriteDBHelper.getReadableDatabase();
         Log.v(LOG_TAG, "Getting Readable DB instance");
-        Log.v(LOG_TAG, "DB open status : " + favoriteDB.isOpen());
+        Log.v(LOG_TAG, "DB open status : " + favoritesDB.isOpen());
         Log.v(LOG_TAG, "-------------------------------------------------------");
         Log.v(LOG_TAG, "Projection : " + projection);
         Log.v(LOG_TAG, "Selection : " + selection);
@@ -69,7 +69,7 @@ public class FavoriteContentProvider extends ContentProvider {
 
         switch (match) {
             case FAVORITES:
-                cursor =  favoriteDB.query(TABLE_NAME,
+                cursor =  favoritesDB.query(TABLE_NAME,
                         projection,
                         selection,
                         selectionArgs,
@@ -110,8 +110,25 @@ public class FavoriteContentProvider extends ContentProvider {
     }
 
     @Override
-    public int delete(@NonNull Uri uri, @Nullable String s, @Nullable String[] strings) {
-        return 0;
+    public int delete(@NonNull Uri uri, @Nullable String selection, @Nullable String[] selectionArgs) {
+        final SQLiteDatabase favoritesDB = mFavoriteDBHelper.getReadableDatabase();
+        Uri returningUri;
+
+        int match = sUriMatcher.match(uri);
+        int deletedRowCount;
+        switch (match){
+            case FAVORITES:
+                deletedRowCount = favoritesDB.delete(TABLE_NAME, selection, selectionArgs);
+                if (deletedRowCount > 0){
+                    getContext().getContentResolver().notifyChange(uri,null);
+                }else {
+                    throw new android.database.SQLException("Failed to delete row from " + uri);
+                }
+                break;
+            default:
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
+        }
+        return deletedRowCount;
     }
 
     @Override

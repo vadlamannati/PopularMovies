@@ -22,11 +22,9 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.example.bharadwaj.popularmovies.databinding.ActivitySpecificMovieDetailBinding;
-import com.example.bharadwaj.popularmovies.favorites.FavoriteContract;
+import com.example.bharadwaj.popularmovies.favorites.FavoriteContract.Favorites;
 import com.example.bharadwaj.popularmovies.json_parsers.MovieJSONParser;
-import com.example.bharadwaj.popularmovies.movie_utilities.MoviePreferences;
 import com.example.bharadwaj.popularmovies.movie_utilities.NetworkUtils;
-import com.example.bharadwaj.popularmovies.movie_utilities.StringUtils;
 import com.example.bharadwaj.popularmovies.movies.Movie;
 import com.example.bharadwaj.popularmovies.reviews.Review;
 import com.example.bharadwaj.popularmovies.reviews.ReviewAdapter;
@@ -37,11 +35,6 @@ import com.example.bharadwaj.popularmovies.trailers.TrailerAsyncTaskLoader;
 import com.github.ivbaranov.mfb.MaterialFavoriteButton;
 
 import java.util.ArrayList;
-import com.example.bharadwaj.popularmovies.favorites.FavoriteContract.Favorites;
-
-import static android.R.id.input;
-import static android.icu.lang.UCharacter.GraphemeClusterBreak.L;
-import static android.webkit.ConsoleMessage.MessageLevel.LOG;
 
 public class SpecificMovieDetail extends AppCompatActivity implements
         TrailerAdapter.TrailerAdapterOnClickHandler,
@@ -59,6 +52,7 @@ public class SpecificMovieDetail extends AppCompatActivity implements
     private ReviewAdapter mReviewAdapter;
     private Movie specificMovieDetails = null;
     private Bundle mBundle = new Bundle();
+    MaterialFavoriteButton favoriteButton;
 
     protected static void showErrorMessageForTrailers(String errorMessage) {
         Log.v(LOG_TAG, "Entering showErrorMessageForTrailers method");
@@ -93,30 +87,11 @@ public class SpecificMovieDetail extends AppCompatActivity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
-        setSupportActionBar(myToolbar);
-       /* Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
-        //in the toolbar
-        MaterialFavoriteButton toolbarFavorite = new MaterialFavoriteButton.Builder(this) //
-                .favorite(true)
-                .color(MaterialFavoriteButton.STYLE_WHITE)
-                .type(MaterialFavoriteButton.STYLE_HEART)
-                .rotationDuration(400)
-                .create();
-        toolbar.addView(toolbarFavorite);
-        toolbarFavorite.setOnFavoriteChangeListener(
-                new MaterialFavoriteButton.OnFavoriteChangeListener() {
-                    @Override
-                    public void onFavoriteChanged(MaterialFavoriteButton buttonView, boolean favorite) {
-                       Log.v(LOG_TAG, "onFavoriteChanged invoked");
-                    }
-                });
-*/
-
         specificMovieDetailBinding = DataBindingUtil.setContentView(this, R.layout.activity_specific_movie_detail);
+
+        Toolbar toolbar = findViewById(R.id.my_toolbar);
+        Log.v(LOG_TAG, "ToolBar : " + toolbar);
+        setSupportActionBar(toolbar);
 
         Log.v(LOG_TAG, "Action bar : " + getActionBar());
 
@@ -140,6 +115,29 @@ public class SpecificMovieDetail extends AppCompatActivity implements
                 Log.v(LOG_TAG, "No movie details fetched");
             }
         }
+
+        //Fetching Favorite information from DB
+        favoriteButton = new MaterialFavoriteButton.Builder(this)
+                .favorite(checkIfMovieIsFavorite())
+                .type(MaterialFavoriteButton.STYLE_HEART)
+                .rotationDuration(400)
+                .create();
+
+        toolbar.addView(favoriteButton);
+        favoriteButton.setOnFavoriteChangeListener(
+                new MaterialFavoriteButton.OnFavoriteChangeListener() {
+                    @Override
+                    public void onFavoriteChanged(MaterialFavoriteButton buttonView, boolean favoriteStatusChanged) {
+                        Log.v(LOG_TAG, "Favorite button clicked. Favorite status changed to: " + favoriteStatusChanged);
+
+                        if(favoriteStatusChanged){
+                            insertMovieIntoDB();
+                        }else {
+                            deleteMovieFromDB();
+                        }
+
+                    }
+                });
 
         //Fetching Trailers
         mTrailerAdapter = new TrailerAdapter(this);
@@ -183,7 +181,59 @@ public class SpecificMovieDetail extends AppCompatActivity implements
         Log.v(LOG_TAG, "Leaving onCreate");
     }
 
-    private void setMovieDetailsToActivity(Movie movie) {
+    boolean checkIfMovieIsFavorite(){
+
+        String selection = Favorites.COLUMN_MOVIE_ID + "= ?";
+        String[] selectionArgs = {specificMovieDetails.getID()};
+
+        Cursor cursor = getContentResolver().query(Favorites.CONTENT_URI,
+                null,
+                selection,
+                selectionArgs,
+                null);
+        if(cursor.getCount()==0){
+            //implement
+            Log.v(LOG_TAG, "This movie isn't a favorite " + specificMovieDetails.getTitle());
+            return false;
+        }else {
+            Log.v(LOG_TAG, "This movie is a favorite one " + specificMovieDetails.getTitle());
+            return true;
+        }
+    }
+
+    void insertMovieIntoDB(){
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(Favorites.COLUMN_MOVIE_ID, specificMovieDetails.getID());
+        contentValues.put(Favorites.COLUMN_MOVIE_NAME, specificMovieDetails.getTitle());
+
+        Uri insertedRowUri = getContentResolver().insert(Favorites.CONTENT_URI, contentValues);
+        Log.v(LOG_TAG, "Inserted Row Uri is : " + insertedRowUri.getPath());
+    }
+
+    void deleteMovieFromDB(){
+        String selection = Favorites.COLUMN_MOVIE_ID + "= ?";
+        String[] selectionArgs = {specificMovieDetails.getID()};
+
+        Cursor cursor = getContentResolver().query(Favorites.CONTENT_URI,
+                null,
+                selection,
+                selectionArgs,
+                null);
+        Log.v(LOG_TAG, "Cursor count : " + cursor.getCount());
+
+        int rowsDeleted = getContentResolver().delete(Favorites.CONTENT_URI,
+                selection,
+                selectionArgs);
+        if(rowsDeleted != 0 ){
+            Log.v(LOG_TAG, "Rows deleted : " + rowsDeleted);
+            Log.v(LOG_TAG, "This movie removed as a favorite " + specificMovieDetails.getTitle());
+        }else {
+            Log.v(LOG_TAG, "This movie is not in th favorites DB " + specificMovieDetails.getTitle());
+        }
+    }
+
+
+private void setMovieDetailsToActivity(Movie movie) {
         MovieJSONParser.buildPosterFromPath(movie.getPosterPath(), specificMovieDetailBinding.moviePoster);
         specificMovieDetailBinding.movieName.setText(movie.getTitle());
         specificMovieDetailBinding.movieReleaseYear.setText(movie.getReleaseDate());
@@ -237,7 +287,7 @@ public class SpecificMovieDetail extends AppCompatActivity implements
     public boolean onOptionsItemSelected(MenuItem item) {
         Log.v(LOG_TAG, "Entering onOptionsItemSelected");
         int itemId = item.getItemId();
-        switch (itemId) {
+        /*switch (itemId) {
 
             case R.id.favorite_button:
 
@@ -269,7 +319,7 @@ public class SpecificMovieDetail extends AppCompatActivity implements
                 break;
 
             default:
-        }
+        }*/
         Log.v(LOG_TAG, "Leaving onOptionsItemSelected");
         return super.onOptionsItemSelected(item);
     }

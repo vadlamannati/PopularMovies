@@ -5,8 +5,10 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.databinding.DataBindingUtil;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
@@ -152,6 +154,22 @@ public class MainActivity extends AppCompatActivity implements
         mMovieAdapter.setMovieData(null);
     }
 
+    void resetLoaders(){
+        mMovieAdapter = new MovieAdapter(this);
+
+        if (MainActivity.this.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+            Log.v(LOG_TAG, "Device orientation : PORTRAIT");
+            mainActivityBinding.moviesRecyclerView.setLayoutManager(new GridLayoutManager(MainActivity.this, 3));
+        } else {
+            Log.v(LOG_TAG, "Device orientation : + LANDSCAPE");
+            mainActivityBinding.moviesRecyclerView.setLayoutManager(new GridLayoutManager(MainActivity.this, 5));
+        }
+
+        mainActivityBinding.moviesRecyclerView.setAdapter(mMovieAdapter);
+        mainActivityBinding.moviesRecyclerView.setHasFixedSize(true);
+
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         Log.v(LOG_TAG, "Entering onCreateOptionsMenu method");
@@ -194,15 +212,19 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
-    public Loader onCreateLoader(int loaderID, Bundle bundle) {
+    public Loader<Object> onCreateLoader(int loaderID, Bundle bundle) {
         Log.v(LOG_TAG, "Entering onCreateLoader");
 
         Log.v(LOG_TAG, "LOADER ID : " + loaderID);
         Loader loader = null;
-        if(loaderID == MOVIE_LOADER_ID){
-            loader = new MovieAsyncTaskLoader(this, mainActivityBinding.movieProgressBar, mMovieAdapter, bundle);
-        }else if(loaderID == FAVORITES_LOADER_ID){
-            loader = new FavoriteAsyncTaskLoader(this, mainActivityBinding.movieProgressBar,mFavoritesAdapter , bundle);
+        switch (loaderID){
+            case MOVIE_LOADER_ID:
+                loader = new MovieAsyncTaskLoader(this, mainActivityBinding.movieProgressBar, mMovieAdapter, bundle);
+                break;
+            case FAVORITES_LOADER_ID:
+                loader = new FavoriteAsyncTaskLoader(this, mainActivityBinding.movieProgressBar,mFavoritesAdapter , bundle);
+                break;
+            default:
         }
         Log.v(LOG_TAG, "Leaving onCreateLoader");
         return loader;
@@ -220,17 +242,19 @@ public class MainActivity extends AppCompatActivity implements
             MainActivity.showErrorMessage(getString(R.string.error_occurred));
             return;
         }
-        if (objects.getClass().getName().equals(ArrayList.class.getName())) {
-            //Log.v(LOG_TAG, "Movies sample: " + movies.get(0));
-            ArrayList<Movie> movies;
-            movies = (ArrayList<Movie>) objects;
-            mMovieAdapter.setMovieData(movies);
-        }
-        if (objects.getClass().getName().equals(Cursor.class.getName())) {
-            //Log.v(LOG_TAG, "Movies sample: " + movies.get(0));
-            Cursor cursor;
-            cursor = (Cursor) objects;
-            mFavoritesAdapter.setCursor(cursor);
+
+        switch (loader.getId()){
+            case MOVIE_LOADER_ID:
+                ArrayList<Movie> movies;
+                movies = (ArrayList<Movie>) objects;
+                mMovieAdapter.setMovieData(movies);
+                break;
+            case FAVORITES_LOADER_ID:
+                Cursor cursor;
+                cursor = (Cursor) objects;
+                mFavoritesAdapter.setCursor(cursor);
+                break;
+            default:
         }
         Log.v(LOG_TAG, "Leaving onLoadFinished");
     }
