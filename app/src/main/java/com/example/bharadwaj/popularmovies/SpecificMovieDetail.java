@@ -293,40 +293,6 @@ private void setMovieDetailsToActivity(Movie movie) {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         Log.v(LOG_TAG, "Entering onOptionsItemSelected");
-        int itemId = item.getItemId();
-        /*switch (itemId) {
-
-            case R.id.favorite_button:
-
-                Log.v(LOG_TAG, "--------RUNNING QUERY : " + Favorites.CONTENT_URI);
-
-                ContentValues contentValues = new ContentValues();
-                contentValues.put(Favorites.COLUMN_MOVIE_ID, specificMovieDetails.getID());
-                contentValues.put(Favorites.COLUMN_MOVIE_NAME, specificMovieDetails.getTitle());
-
-                Uri insertedRowUri = getContentResolver().insert(Favorites.CONTENT_URI, contentValues);
-                Log.v(LOG_TAG, "Inserted Row Uri is : " + insertedRowUri.getPath());
-
-
-                String selection = Favorites.COLUMN_MOVIE_ID + "= ?";
-                String[] selectionArgs = {specificMovieDetails.getID()};
-
-                Cursor cursor = getContentResolver().query(Favorites.CONTENT_URI,
-                        null,
-                        selection,
-                        selectionArgs,
-                        null);
-                if(cursor.getCount()==0){
-                    //implement
-                    Log.v(LOG_TAG, "No records in Favorites table");
-                }else {
-                    Log.v(LOG_TAG, "record count : " + cursor.getCount());
-                }
-
-                break;
-
-            default:
-        }*/
         Log.v(LOG_TAG, "Leaving onOptionsItemSelected");
         return super.onOptionsItemSelected(item);
     }

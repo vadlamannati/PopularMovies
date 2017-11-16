@@ -22,8 +22,8 @@ import com.example.bharadwaj.popularmovies.favorites.FavoriteContract.Favorites;
 public class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapter.FavoriteViewHolder>{
 
     private static final String LOG_TAG = FavoritesAdapter.class.getSimpleName();
+    private final FavoriteAdapterOnClickHandler mOnClickHandler;
 
-    private Context mContext;
     private Cursor mCursor;
 
     public void setCursor(Cursor cursor) {
@@ -35,8 +35,8 @@ public class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapter.Favo
         return mCursor;
     }
 
-    public FavoritesAdapter(Context context) {
-        mContext = context;
+    public FavoritesAdapter(FavoriteAdapterOnClickHandler onClickHandler) {
+        mOnClickHandler = onClickHandler;
     }
 
     @Override
@@ -85,7 +85,11 @@ public class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapter.Favo
         return mCursor.getCount();
     }
 
-    class FavoriteViewHolder extends RecyclerView.ViewHolder{
+    public interface FavoriteAdapterOnClickHandler {
+        void performOnClick(Movie currentMovie);
+    }
+
+    class FavoriteViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
 
         private TextView mFavoriteMovieName;
         private ImageView mFavoriteMovieThumbnail;
@@ -99,7 +103,30 @@ public class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapter.Favo
             mFavoriteMovieName = itemView.findViewById(R.id.favorite_movie_name);
             mFavoriteMovieRating = itemView.findViewById(R.id.favorite_movie_rating);
             mFavoriteMovieReleaseDate = itemView.findViewById(R.id.favorite_movie_release_date);
-            //mFavoriteMovieThumbnail.setOnClickListener(this);
+            itemView.setOnClickListener(this);
+        }
+
+        @Override
+        public void onClick(View view) {
+            //Log.v(LOG_TAG, "Entering onClick method in ViewHolder");
+            int currentAdapterPosition = getAdapterPosition();
+
+            mCursor.moveToPosition(currentAdapterPosition);
+            Movie currentMovie;
+
+            Log.v(LOG_TAG, "Position is : " + currentAdapterPosition);
+            //Log.v(LOG_TAG, "Current Movie is : " + mCursor.get);
+
+            String movieId = mCursor.getString(mCursor.getColumnIndex(Favorites.COLUMN_MOVIE_ID));
+            String movieName = mCursor.getString(mCursor.getColumnIndex(Favorites.COLUMN_MOVIE_NAME));
+            String posterPath = mCursor.getString(mCursor.getColumnIndex(Favorites.COLUMN_MOVIE_POSTER_PATH));
+            String overview = mCursor.getString(mCursor.getColumnIndex(Favorites.COLUMN_MOVIE_OVERVIEW));
+            String userRating = mCursor.getString(mCursor.getColumnIndex(Favorites.COLUMN_MOVIE_USER_RATING));
+            String releaseDate = mCursor.getString(mCursor.getColumnIndex(Favorites.COLUMN_MOVIE_RELEASE_DATE));
+
+            currentMovie = new Movie(movieId, movieName, posterPath, overview, userRating, releaseDate);
+
+            mOnClickHandler.performOnClick(currentMovie);
         }
     }
 }

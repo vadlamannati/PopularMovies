@@ -36,6 +36,7 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements
         MovieAdapter.MovieAdapterOnClickHandler,
+        FavoritesAdapter.FavoriteAdapterOnClickHandler,
         LoaderManager.LoaderCallbacks<Object> {
 
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
@@ -108,18 +109,6 @@ public class MainActivity extends AppCompatActivity implements
         Log.v(LOG_TAG, "Leaving onCreate");
     }
 
-
-    /*private void loadMoviesOnStart(String sortPreference) {
-        //Log.v(LOG_TAG, "Entering loadMoviesOnStart method");
-
-        showMovies(sortPreference);
-        bundle.putString(StringUtils.SORT_PREFERENCE, sortPreference);
-        Log.v(LOG_TAG, "Initializing Loader");
-        getSupportLoaderManager().initLoader(MOVIE_LOADER_ID, bundle, MainActivity.this);
-
-        //Log.v(LOG_TAG, "Leaving loadMoviesOnStart method");
-    }*/
-
     private void loadMovies(String sortPreference) {
         //Log.v(LOG_TAG, "Entering loadMovies method");
 
@@ -165,6 +154,8 @@ public class MainActivity extends AppCompatActivity implements
             }
         }).attachToRecyclerView(mainActivityBinding.moviesRecyclerView);
 
+        mainActivityBinding.favoritesExplanationText.setVisibility(View.VISIBLE);
+        mainActivityBinding.favoritesExplanationTextSaperator.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -201,6 +192,8 @@ public class MainActivity extends AppCompatActivity implements
         mainActivityBinding.moviesRecyclerView.setAdapter(mMovieAdapter);
         mainActivityBinding.moviesRecyclerView.setHasFixedSize(true);
 
+        mainActivityBinding.favoritesExplanationText.setVisibility(View.GONE);
+        mainActivityBinding.favoritesExplanationTextSaperator.setVisibility(View.GONE);
     }
 
     @Override
@@ -264,6 +257,11 @@ public class MainActivity extends AppCompatActivity implements
         Log.v(LOG_TAG, "Current selection on orientation change : " + currentSelection);
     }
 
+    void showNoFavoritesAndHideOthers(){
+        mainActivityBinding.moviesRecyclerView.setVisibility(View.GONE);
+        mainActivityBinding.favoritesExplanationText.setText(StringUtils.NO_FAVORITE_MOVIES_TEXT);
+    }
+
     @Override
     public Loader<Object> onCreateLoader(int loaderID, Bundle bundle) {
         Log.v(LOG_TAG, "Entering onCreateLoader");
@@ -289,7 +287,7 @@ public class MainActivity extends AppCompatActivity implements
         Log.v(LOG_TAG, "Entering onLoadFinished");
         Log.v(LOG_TAG, "LOADER ID : " + loader.getId());
 
-        mainActivityBinding.movieProgressBar.setVisibility(View.INVISIBLE);
+        mainActivityBinding.movieProgressBar.setVisibility(View.GONE);
         if (objects == null) {
             Log.v(LOG_TAG, "No Movies to show");
             MainActivity.showErrorMessage(getString(R.string.error_occurred));
@@ -307,18 +305,21 @@ public class MainActivity extends AppCompatActivity implements
                 cursor = (Cursor) objects;
                 Log.v(LOG_TAG, "Cursor length : " + cursor.getCount());
                 mFavoritesAdapter.setCursor(cursor);
+                if(cursor.getCount() == 0){
+                    showNoFavoritesAndHideOthers();
+                }else {
+                    mainActivityBinding.favoritesExplanationText.setText(StringUtils.SWIPE_TO_DELETE_TEXT);
+                }
                 break;
             default:
         }
         Log.v(LOG_TAG, "Leaving onLoadFinished");
     }
 
-
     @Override
     public void onLoaderReset(Loader loader) {
         Log.v(LOG_TAG, "Entering onLoaderReset");
         Log.v(LOG_TAG, "Leaving onLoaderReset");
-
     }
 }
 
