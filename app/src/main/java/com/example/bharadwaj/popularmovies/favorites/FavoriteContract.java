@@ -15,7 +15,6 @@ public class FavoriteContract {
 
     //Possible paths to access data:
     public static final String FAVORITES = "favorites";
-    public static final String FAVORITE = "favorite";
 
     public static final class Favorites implements BaseColumns {
 
@@ -26,7 +25,10 @@ public class FavoriteContract {
         // "_ID" column will be automatically generated due to the BaseColumns
         public static final String COLUMN_MOVIE_ID = "movie_id";
         public static final String COLUMN_MOVIE_NAME = "movie_name";
-
+        public static final String COLUMN_MOVIE_POSTER_PATH = "poster_path";
+        public static final String COLUMN_MOVIE_OVERVIEW = "overview";
+        public static final String COLUMN_MOVIE_RELEASE_DATE = "release_date";
+        public static final String COLUMN_MOVIE_USER_RATING = "user_rating";
     }
 
 }

@@ -117,9 +117,13 @@ public class FavoriteContentProvider extends ContentProvider {
         int match = sUriMatcher.match(uri);
         int deletedRowCount;
         switch (match){
-            case FAVORITES:
+            case FAVORITES_WITH_ID:
+                String id = uri.getPathSegments().get(1);
+                selection = "_id = ?";
+                selectionArgs = new String[]{id};
+
                 deletedRowCount = favoritesDB.delete(TABLE_NAME, selection, selectionArgs);
-                if (deletedRowCount > 0){
+                if (deletedRowCount != 0){
                     getContext().getContentResolver().notifyChange(uri,null);
                 }else {
                     throw new android.database.SQLException("Failed to delete row from " + uri);

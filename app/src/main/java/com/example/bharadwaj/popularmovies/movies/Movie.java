@@ -89,11 +89,11 @@ public class Movie implements Parcelable {
     @Override
     public String toString() {
 
-        return this.getID()
-                + this.getTitle()
-                + this.getPosterPath()
-                + this.getOverview()
-                + this.getUserRating()
-                + this.getReleaseDate();
+        return  "\n Movie ID : " + this.getID()
+                + "\n Movie Name : " + this.getTitle()
+                + "\n Movie Poster path : " + this.getPosterPath()
+                + "\n Movie Overview : " + this.getOverview()
+                + "\n Movie Rating : " + this.getUserRating()
+                + "\n Movie Releade date : " + this.getReleaseDate() + "\n";
     }
 }

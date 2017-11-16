@@ -39,7 +39,7 @@ public class FavoriteAsyncTaskLoader extends AsyncTaskLoader<Cursor> {
         if(null != cursor){
             deliverResult(cursor);
         }else {
-            Log.v(LOG_TAG, "No movies to show. Generating");
+            Log.v(LOG_TAG, "No Favorite movies to show. Generating");
             mProgressBar.setVisibility(View.VISIBLE);
             forceLoad();
         }
@@ -57,6 +57,7 @@ public class FavoriteAsyncTaskLoader extends AsyncTaskLoader<Cursor> {
                 null,
                 null,
                 null);
+        Log.v(LOG_TAG, "Cursor length : " + cursor.getCount());
         Log.v(LOG_TAG, "Leaving loadInBackground");
         return cursor;
     }

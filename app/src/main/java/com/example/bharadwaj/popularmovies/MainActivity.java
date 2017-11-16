@@ -8,11 +8,12 @@ import android.databinding.DataBindingUtil;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
-import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -21,6 +22,7 @@ import android.view.View;
 
 import com.example.bharadwaj.popularmovies.databinding.ActivityMainBinding;
 import com.example.bharadwaj.popularmovies.favorites.FavoriteAsyncTaskLoader;
+import com.example.bharadwaj.popularmovies.favorites.FavoriteContract;
 import com.example.bharadwaj.popularmovies.favorites.FavoritesAdapter;
 import com.example.bharadwaj.popularmovies.movie_utilities.MoviePreferences;
 import com.example.bharadwaj.popularmovies.movie_utilities.NetworkUtils;
@@ -34,15 +36,19 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements
         MovieAdapter.MovieAdapterOnClickHandler,
-        LoaderManager.LoaderCallbacks<Object>{
+        LoaderManager.LoaderCallbacks<Object> {
 
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
     private static final int MOVIE_LOADER_ID = 50;
     private static final int FAVORITES_LOADER_ID = 51;
+    private static final String FAVORITE_MOVIES = "favorite_movies";
+    private final String SAVING_INSTANCE = "saving_instance";
+
     private static MovieAdapter mMovieAdapter;
     private static FavoritesAdapter mFavoritesAdapter;
     private static ActivityMainBinding mainActivityBinding;
     Bundle bundle = new Bundle();
+    String currentSelection = MoviePreferences.DEFAULT_SORT_PREFERENCE;
 
     protected static void showErrorMessage(String errorMessage) {
         Log.v(LOG_TAG, "Entering showErrorMessage method");
@@ -64,7 +70,7 @@ public class MainActivity extends AppCompatActivity implements
         if (sortPreference.equals(MoviePreferences.SORT_BY_TOP_RATED)) {
             setTitle(R.string.top_rated);
         }
-        if (sortPreference.equalsIgnoreCase("favorites")){
+        if (sortPreference.equalsIgnoreCase(FAVORITE_MOVIES)) {
             setTitle(R.string.favorites);
         }
         //Log.v(LOG_TAG, "Leaving showMovies method");
@@ -75,24 +81,30 @@ public class MainActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         Log.v(LOG_TAG, "Entering onCreate");
         mainActivityBinding = DataBindingUtil.setContentView(this, R.layout.activity_main);
-        mMovieAdapter = new MovieAdapter(this);
 
-        if (MainActivity.this.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
-            Log.v(LOG_TAG, "Device orientation : PORTRAIT");
-            mainActivityBinding.moviesRecyclerView.setLayoutManager(new GridLayoutManager(MainActivity.this, 3));
-        } else {
-            Log.v(LOG_TAG, "Device orientation : + LANDSCAPE");
-            mainActivityBinding.moviesRecyclerView.setLayoutManager(new GridLayoutManager(MainActivity.this, 5));
-        }
-
-        mainActivityBinding.moviesRecyclerView.setAdapter(mMovieAdapter);
-        mainActivityBinding.moviesRecyclerView.setHasFixedSize(true);
-
+        Log.v(LOG_TAG, "Current view selection is : " + currentSelection);
         if (NetworkUtils.isConnectedToInternet(this)) {
-            loadMovies(MoviePreferences.DEFAULT_SORT_PREFERENCE);
-        }else {
+
+            if (null != savedInstanceState) {
+                if (savedInstanceState.containsKey(SAVING_INSTANCE)) {
+                    currentSelection = savedInstanceState.getString(SAVING_INSTANCE);
+                    Log.v(LOG_TAG, "Retreiving saved instance : " + currentSelection);
+                }
+            }
+            if (currentSelection.equals(MoviePreferences.DEFAULT_SORT_PREFERENCE)) {
+                resetAdapterForMovieData();
+                loadMovies(MoviePreferences.DEFAULT_SORT_PREFERENCE);
+            } else if (currentSelection.equals(MoviePreferences.SORT_BY_TOP_RATED)) {
+                resetAdapterForMovieData();
+                loadMovies(MoviePreferences.SORT_BY_TOP_RATED);
+            } else if (currentSelection.equals(FAVORITE_MOVIES)) {
+                resetAdapterForFavoriteMovieData();
+                loadFavoriteMovies();
+            }
+        } else {
             MainActivity.showErrorMessage(getString(R.string.no_active_network));
         }
+
         Log.v(LOG_TAG, "Leaving onCreate");
     }
 
@@ -115,23 +127,44 @@ public class MainActivity extends AppCompatActivity implements
         bundle.putString(StringUtils.SORT_PREFERENCE, sortPreference);
         Log.v(LOG_TAG, "Restarting Loader");
         getSupportLoaderManager().restartLoader(MOVIE_LOADER_ID, bundle, MainActivity.this);
-
-        //Log.v(LOG_TAG, "Leaving loadMovies method");
     }
 
     private void loadFavoriteMovies() {
         Log.v(LOG_TAG, "Entering loadFavoriteMovies method");
 
+        showMovies(FAVORITE_MOVIES);
+        Log.v(LOG_TAG, "Restarting Loader");
+        getSupportLoaderManager().restartLoader(FAVORITES_LOADER_ID, bundle, MainActivity.this);
+
+        Log.v(LOG_TAG, "Leaving loadFavoriteMovies method");
+    }
+
+    private void resetAdapterForFavoriteMovieData() {
         mFavoritesAdapter = new FavoritesAdapter(this);
         mainActivityBinding.moviesRecyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
         mainActivityBinding.moviesRecyclerView.setAdapter(mFavoritesAdapter);
         mainActivityBinding.moviesRecyclerView.setHasFixedSize(true);
 
-        showMovies("favorites");
-        Log.v(LOG_TAG, "Restarting Loader");
-        getSupportLoaderManager().restartLoader(FAVORITES_LOADER_ID, bundle, MainActivity.this);
+        new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+            @Override
+            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+                return false;
+            }
 
-        Log.v(LOG_TAG, "Leaving loadFavoriteMovies method");
+            @Override
+            public void onSwiped(RecyclerView.ViewHolder viewHolder, int swipeDir) {
+                int position = viewHolder.getAdapterPosition();
+                int id = (int) viewHolder.itemView.getTag();
+                String stringId = Integer.toString(id);
+                Uri uri = FavoriteContract.Favorites.CONTENT_URI;
+                uri = uri.buildUpon().appendPath(stringId).build();
+                getContentResolver().delete(uri, null, null);
+                getSupportLoaderManager().restartLoader(FAVORITES_LOADER_ID, null, MainActivity.this);
+                mFavoritesAdapter.notifyItemChanged(position);
+                mFavoritesAdapter.notifyDataSetChanged();
+            }
+        }).attachToRecyclerView(mainActivityBinding.moviesRecyclerView);
+
     }
 
     @Override
@@ -154,7 +187,7 @@ public class MainActivity extends AppCompatActivity implements
         mMovieAdapter.setMovieData(null);
     }
 
-    void resetLoaders(){
+    void resetAdapterForMovieData() {
         mMovieAdapter = new MovieAdapter(this);
 
         if (MainActivity.this.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
@@ -190,19 +223,26 @@ public class MainActivity extends AppCompatActivity implements
 
             case R.id.refresh:
                 String sortPreference = bundle.getString(StringUtils.SORT_PREFERENCE);
+                resetAdapterForMovieData();
                 loadMovies(sortPreference);
                 break;
 
             case R.id.top_rated:
+                resetAdapterForMovieData();
                 loadMovies(MoviePreferences.SORT_BY_TOP_RATED);
+                currentSelection = MoviePreferences.SORT_BY_TOP_RATED;
                 break;
 
             case R.id.most_popular:
+                resetAdapterForMovieData();
                 loadMovies(MoviePreferences.SORT_BY_POPULAR);
+                currentSelection = MoviePreferences.SORT_BY_POPULAR;
                 break;
 
             case R.id.favorites:
+                resetAdapterForFavoriteMovieData();
                 loadFavoriteMovies();
+                currentSelection = FAVORITE_MOVIES;
                 break;
 
             default:
@@ -212,17 +252,30 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString(SAVING_INSTANCE, currentSelection);
+        Log.v(LOG_TAG, "Saving instance to : " + currentSelection);
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        Log.v(LOG_TAG, "Current selection on orientation change : " + currentSelection);
+    }
+
+    @Override
     public Loader<Object> onCreateLoader(int loaderID, Bundle bundle) {
         Log.v(LOG_TAG, "Entering onCreateLoader");
 
         Log.v(LOG_TAG, "LOADER ID : " + loaderID);
         Loader loader = null;
-        switch (loaderID){
+        switch (loaderID) {
             case MOVIE_LOADER_ID:
                 loader = new MovieAsyncTaskLoader(this, mainActivityBinding.movieProgressBar, mMovieAdapter, bundle);
                 break;
             case FAVORITES_LOADER_ID:
-                loader = new FavoriteAsyncTaskLoader(this, mainActivityBinding.movieProgressBar,mFavoritesAdapter , bundle);
+                loader = new FavoriteAsyncTaskLoader(this, mainActivityBinding.movieProgressBar, mFavoritesAdapter, bundle);
                 break;
             default:
         }
@@ -243,7 +296,7 @@ public class MainActivity extends AppCompatActivity implements
             return;
         }
 
-        switch (loader.getId()){
+        switch (loader.getId()) {
             case MOVIE_LOADER_ID:
                 ArrayList<Movie> movies;
                 movies = (ArrayList<Movie>) objects;
@@ -252,6 +305,7 @@ public class MainActivity extends AppCompatActivity implements
             case FAVORITES_LOADER_ID:
                 Cursor cursor;
                 cursor = (Cursor) objects;
+                Log.v(LOG_TAG, "Cursor length : " + cursor.getCount());
                 mFavoritesAdapter.setCursor(cursor);
                 break;
             default:

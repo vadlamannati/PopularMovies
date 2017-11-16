@@ -1,41 +1,76 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <LinearLayout
-        android:layout_width="wrap_content"
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
+
         <ImageView
-            android:id="@+id/movie_thumbnail"
+            android:id="@+id/favorite_movie_thumbnail"
+            style="@style/SetMargins"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:contentDescription="@string/movie_poster"
-            android:padding="1dp"
-            android:scaleType="centerCrop" />
+            app:layout_constraintBottom_toTopOf="@+id/trailers_saperator"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/place_holder" />
 
         <TextView
             android:id="@+id/favorite_movie_name"
+            style="@style/SubHeadTextStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            tools:text="@string/movie_name" />
+            android:text="TextView"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintLeft_toRightOf="@+id/favorite_movie_thumbnail"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"    />
 
-        <!--app:mfb_favorite_image="@drawable/"
-            app:mfb_not_favorite_image="@drawable/ic_not_fav"-->
-        <com.github.ivbaranov.mfb.MaterialFavoriteButton
+        <View
+            android:id="@+id/trailers_saperator"
+            style="@style/SetMarginsForSeparator"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/black"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent" />
+
+        <TextView
+            android:id="@+id/favorite_movie_rating"
+            style="@style/SideHeadTextStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:mfb_animate_favorite="true"
-            app:mfb_animate_unfavorite="false"
-            app:mfb_bounce_duration="300"
-            app:mfb_color="black"
-            app:mfb_padding="12"
-            app:mfb_rotation_angle="360"
-            app:mfb_rotation_duration="400"
-            app:mfb_size="48"
-            app:mfb_type="star" />
+            android:layout_marginLeft="0dp"
+            android:text="TextView"
+            app:layout_constraintBottom_toTopOf="@+id/trailers_saperator"
+            app:layout_constraintHorizontal_bias="0.414"
+            app:layout_constraintLeft_toRightOf="@+id/favorite_movie_thumbnail"
+            app:layout_constraintRight_toLeftOf="@+id/guideline"
+            app:layout_constraintTop_toBottomOf="@+id/favorite_movie_name" />
 
-    </LinearLayout>
+        <android.support.constraint.Guideline
+            android:id="@+id/guideline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.6" />
+
+        <TextView
+            android:id="@+id/favorite_movie_release_date"
+            style="@style/SideHeadTextStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="TextView"
+            app:layout_constraintBottom_toTopOf="@+id/trailers_saperator"
+            app:layout_constraintLeft_toLeftOf="@+id/guideline"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/favorite_movie_name" />
+
+
+    </android.support.constraint.ConstraintLayout>
 </layout>

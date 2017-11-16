@@ -8,14 +8,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.bharadwaj.popularmovies.R;
+import com.example.bharadwaj.popularmovies.json_parsers.MovieJSONParser;
 import com.example.bharadwaj.popularmovies.movies.Movie;
-import com.example.bharadwaj.popularmovies.trailers.Trailer;
 import com.example.bharadwaj.popularmovies.favorites.FavoriteContract.Favorites;
-import java.util.ArrayList;
 
 /**
  * Created by Bharadwaj on 11/11/17.
@@ -30,6 +28,7 @@ public class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapter.Favo
 
     public void setCursor(Cursor cursor) {
         this.mCursor = cursor;
+        notifyDataSetChanged();
     }
 
     public Cursor getCursor() {
@@ -50,39 +49,57 @@ public class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapter.Favo
     }
 
     @Override
-    public void onBindViewHolder(FavoriteViewHolder holder, int position) {
+    public void onBindViewHolder(FavoriteViewHolder movieHolder, int position) {
 
+        mCursor.moveToPosition(position);
 
-        int IDIndex = mCursor.getColumnIndex(Favorites._ID);
-        int movieIDindex = mCursor.getColumnIndex(Favorites.COLUMN_MOVIE_ID);
-        int movieNameIndex = mCursor.getColumnIndex(Favorites.COLUMN_MOVIE_NAME);
+        Movie movie;
 
         Log.v(LOG_TAG, "Position is : " + position);
         //Log.v(LOG_TAG, "Current Movie is : " + mCursor.get);
 
-        int ID = mCursor.getInt(IDIndex);
-        String movieID = mCursor.getString(movieIDindex);
-        String movieName = mCursor.getString(movieNameIndex);
+        String movieId = mCursor.getString(mCursor.getColumnIndex(Favorites.COLUMN_MOVIE_ID));
+        String movieName = mCursor.getString(mCursor.getColumnIndex(Favorites.COLUMN_MOVIE_NAME));
+        String posterPath = mCursor.getString(mCursor.getColumnIndex(Favorites.COLUMN_MOVIE_POSTER_PATH));
+        String overview = mCursor.getString(mCursor.getColumnIndex(Favorites.COLUMN_MOVIE_OVERVIEW));
+        String userRating = mCursor.getString(mCursor.getColumnIndex(Favorites.COLUMN_MOVIE_USER_RATING));
+        String releaseDate = mCursor.getString(mCursor.getColumnIndex(Favorites.COLUMN_MOVIE_RELEASE_DATE));
 
-        holder.mMovieNameView.setText(movieName);
-        //MovieJSONParser.buildPosterFromPath(movie.getPosterPath(), movieHolder.mMovieThumbnail);
+        movie = new Movie(movieId, movieName, posterPath, overview, userRating, releaseDate);
 
+        Log.v(LOG_TAG, "Binding Movie to the view : " + movie.toString());
+
+        movieHolder.mFavoriteMovieName.setText(movieName);
+        movieHolder.mFavoriteMovieRating.setText(userRating + MovieJSONParser.USER_RATING_REFERENCE_TOTAL);
+        movieHolder.mFavoriteMovieReleaseDate.setText(releaseDate);
+        MovieJSONParser.buildPosterFromPath(movie.getPosterPath(), movieHolder.mFavoriteMovieThumbnail);
+
+        movieHolder.itemView.setTag(mCursor.getInt(mCursor.getColumnIndex(Favorites._ID)));
     }
 
     @Override
     public int getItemCount() {
-        return 0;
+        if(null == mCursor){
+            return 0;
+        }
+        return mCursor.getCount();
     }
 
     class FavoriteViewHolder extends RecyclerView.ViewHolder{
 
-        private final LinearLayout mMovieLayout;
-        private TextView mMovieNameView;
+        private TextView mFavoriteMovieName;
+        private ImageView mFavoriteMovieThumbnail;
+        private TextView mFavoriteMovieRating;
+        private TextView mFavoriteMovieReleaseDate;
+
 
         public FavoriteViewHolder(View itemView){
             super(itemView);
-            mMovieLayout = itemView.findViewById(R.layout.favorite_list_item);
-            mMovieNameView = itemView.findViewById(R.id.favorite_movie_name);
+            mFavoriteMovieThumbnail = itemView.findViewById(R.id.favorite_movie_thumbnail);
+            mFavoriteMovieName = itemView.findViewById(R.id.favorite_movie_name);
+            mFavoriteMovieRating = itemView.findViewById(R.id.favorite_movie_rating);
+            mFavoriteMovieReleaseDate = itemView.findViewById(R.id.favorite_movie_release_date);
+            //mFavoriteMovieThumbnail.setOnClickListener(this);
         }
     }
 }

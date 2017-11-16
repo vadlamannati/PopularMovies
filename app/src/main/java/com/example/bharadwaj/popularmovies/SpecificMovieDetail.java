@@ -202,9 +202,16 @@ public class SpecificMovieDetail extends AppCompatActivity implements
     }
 
     void insertMovieIntoDB(){
+
+        Log.v(LOG_TAG, "Inserting Movie details : " + specificMovieDetails.toString());
+
         ContentValues contentValues = new ContentValues();
         contentValues.put(Favorites.COLUMN_MOVIE_ID, specificMovieDetails.getID());
         contentValues.put(Favorites.COLUMN_MOVIE_NAME, specificMovieDetails.getTitle());
+        contentValues.put(Favorites.COLUMN_MOVIE_POSTER_PATH, specificMovieDetails.getPosterPath());
+        contentValues.put(Favorites.COLUMN_MOVIE_OVERVIEW, specificMovieDetails.getOverview());
+        contentValues.put(Favorites.COLUMN_MOVIE_RELEASE_DATE, specificMovieDetails.getReleaseDate());
+        contentValues.put(Favorites.COLUMN_MOVIE_USER_RATING, specificMovieDetails.getUserRating());
 
         Uri insertedRowUri = getContentResolver().insert(Favorites.CONTENT_URI, contentValues);
         Log.v(LOG_TAG, "Inserted Row Uri is : " + insertedRowUri.getPath());

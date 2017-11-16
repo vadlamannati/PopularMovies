@@ -15,7 +15,7 @@ public class FavoriteDBHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "favoritesDB.db";
 
-    private static final int VERSION = 1;
+    private static final int VERSION = 4;
     private static final String LOGTAG = FavoriteDBHelper.class.getSimpleName();
 
     public FavoriteDBHelper(Context context) {
@@ -26,10 +26,14 @@ public class FavoriteDBHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase favoritesDB) {
         Log.v(LOGTAG, "Entering onCreate");
-        final String TABLE_NAME = "CREATE TABLE "  + Favorites.TABLE_NAME + " (" +
-                Favorites._ID                + " INTEGER PRIMARY KEY, " +
-                Favorites.COLUMN_MOVIE_ID    + " TEXT NOT NULL, " +
-                Favorites.COLUMN_MOVIE_NAME  + " TEXT NOT NULL);";
+        final String TABLE_NAME = "CREATE TABLE " + Favorites.TABLE_NAME + " (" +
+                Favorites._ID                           + " INTEGER PRIMARY KEY, " +
+                Favorites.COLUMN_MOVIE_ID               + " TEXT NOT NULL, " +
+                Favorites.COLUMN_MOVIE_NAME             + " TEXT NOT NULL, " +
+                Favorites.COLUMN_MOVIE_POSTER_PATH      + " TEXT NOT NULL, " +
+                Favorites.COLUMN_MOVIE_OVERVIEW         + " TEXT NOT NULL, " +
+                Favorites.COLUMN_MOVIE_RELEASE_DATE     + " TEXT NOT NULL, " +
+                Favorites.COLUMN_MOVIE_USER_RATING      + " TEXT NOT NULL);";
 
         Log.v(LOGTAG, "Creating Table: " + TABLE_NAME);
         favoritesDB.execSQL(TABLE_NAME);

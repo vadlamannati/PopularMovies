@@ -31,6 +31,8 @@ public class MovieJSONParser {
     private final static String OVERVIEW = "overview";
     private final static String USER_RATING = "vote_average";
     private final static String RELEASE_DATE = "release_date";
+    public final static String USER_RATING_REFERENCE_TOTAL = "/10";
+
     private final static String IMAGE_BASE_URL = "http://image.tmdb.org/t/p/w185/";
 
     private final static int TARGET_WIDTH = 345;
