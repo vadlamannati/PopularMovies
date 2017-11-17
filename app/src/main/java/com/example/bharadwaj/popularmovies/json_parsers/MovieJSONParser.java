@@ -1,11 +1,11 @@
-package com.example.bharadwaj.popularmovies.movie_utilities;
+package com.example.bharadwaj.popularmovies.json_parsers;
 
 import android.net.Uri;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.widget.ImageView;
 
-import com.example.bharadwaj.popularmovies.Movie;
+import com.example.bharadwaj.popularmovies.movies.Movie;
 import com.example.bharadwaj.popularmovies.R;
 import com.squareup.picasso.Picasso;
 
@@ -25,20 +25,26 @@ public class MovieJSONParser {
 
     private static final String LOG_TAG = MovieJSONParser.class.getSimpleName();
 
+    private final static String ID = "id";
     private final static String TITLE = "title";
     private final static String POSTER_PATH = "poster_path";
     private final static String OVERVIEW = "overview";
     private final static String USER_RATING = "vote_average";
     private final static String RELEASE_DATE = "release_date";
+    public final static String USER_RATING_REFERENCE_TOTAL = "/10";
+
     private final static String IMAGE_BASE_URL = "http://image.tmdb.org/t/p/w185/";
+
     private final static int TARGET_WIDTH = 345;
     private final static int TARGET_HEIGHT = 380;
 
+    private final static String RESULTS = "results";
+    private final static String ERROR_CODE = "cod";
+
+    public final static String RATING_TOTAL_REFERENCE = "/10";
+
     public static ArrayList<Movie> getMovies(String movieJsonResponse) throws JSONException {
         Log.v(LOG_TAG, "Entering getMovies method");
-
-        final String RESULTS = "results";
-        final String ERROR_CODE = "cod";
 
         Movie movie;
         ArrayList<Movie> movieJsonData;
@@ -69,13 +75,14 @@ public class MovieJSONParser {
 
             JSONObject movieResults = movieResultsArray.getJSONObject(i);
 
+            String id = movieResults.getString(ID);
             String title = movieResults.getString(TITLE);
             String userRating = movieResults.getString(USER_RATING);
             String posterPath = movieResults.getString(POSTER_PATH);
             String releaseDate = movieResults.getString(RELEASE_DATE);
             String overview = movieResults.getString(OVERVIEW);
 
-            movie = new Movie(title, posterPath, overview, userRating, releaseDate);
+            movie = new Movie(id, title, posterPath, overview, userRating, releaseDate);
 
             movieJsonData.add(movie);
 

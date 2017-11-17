@@ -27,7 +27,14 @@
 
 
         <activity android:name=".SpecificMovieDetail"
-            android:parentActivityName=".MainActivity"/>
+            android:label="@string/movie_detail_title"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+
+        <provider
+            android:name=".favorites.FavoriteContentProvider"
+            android:authorities="com.example.bharadwaj.popularmovies"
+            android:exported="false" />
 
     </application>
 

@@ -30,14 +30,27 @@ dependencies {
     })
 
     //Adding Picasso dependency
-    
 
-    compile 'com.android.support:appcompat-v7:26.0.0-alpha1'
-    compile 'com.android.support:recyclerview-v7:26.0.0-alpha1'
+
+    compile 'com.android.support:appcompat-v7:26.0.0'
+    compile 'com.android.support:recyclerview-v7:26.0.0'
     compile 'com.squareup.picasso:picasso:2.5.2'
+
+    compile 'com.android.support.constraint:constraint-layout:1.0.0-beta4'
+    compile 'com.github.ivbaranov:materialfavoritebutton:0.1.4'
+    compile "com.android.support:support-core-utils:26.0.0"
 
 }
 
 repositories {
     mavenCentral()
+
+    allprojects {
+        repositories {
+            jcenter()
+            maven {
+                url "https://maven.google.com"
+            }
+        }
+    }
 }

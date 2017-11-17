@@ -9,6 +9,16 @@
     <string name="refresh">Refresh</string>
     <string name="movie_poster">Movie Poster</string>
     <string name="no_active_network">No active Network connection detected. Please connect to internet.</string>
+    <string name="movie_detail_title">Movie Details</string>
+    <string name="trailerView">Trailer Item View</string>
+    <string name="trailerHeading">Trailers:</string>
+    <string name="reviewContent">Review Item View</string>
+    <string name="reviewHeading">Reviews:</string>
+    <string name="reviewAuthor">Review Author</string>
+    <string name="empty_reviews">This movie doesn\'t have reviews to show</string>
+    <string name="favorites">My Favorites</string>
+    <string name="movie_name">Movie Name</string>
+    <string name="favorites_explanation_text">Favorites Explanation Text</string>
 
 
 </resources>

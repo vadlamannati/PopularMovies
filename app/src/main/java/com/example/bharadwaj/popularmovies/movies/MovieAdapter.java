@@ -1,4 +1,4 @@
-package com.example.bharadwaj.popularmovies;
+package com.example.bharadwaj.popularmovies.movies;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
@@ -7,8 +7,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
-import com.example.bharadwaj.popularmovies.movie_utilities.MovieJSONParser;
+import com.example.bharadwaj.popularmovies.R;
+import com.example.bharadwaj.popularmovies.json_parsers.MovieJSONParser;
 
 import java.util.ArrayList;
 
@@ -16,7 +19,7 @@ import java.util.ArrayList;
  * @author Bharadwaj on 8/6/17.
  */
 
-public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHolder> {
+public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHolder>{
     private static final String LOG_TAG = MovieAdapter.class.getSimpleName();
     private final MovieAdapterOnClickHandler mOnClickHandler;
     private ArrayList<Movie> mMovieData;
@@ -58,13 +61,19 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
     }
 
     public void setMovieData(ArrayList<Movie> movieData) {
-        //Log.v(LOG_TAG, "Setting Movie data to Adapter. Movie Data length : " + movieData.size());
-        Log.v(LOG_TAG, "Entering setMovieData method");
+        if(movieData != null){
+            Log.v(LOG_TAG, "Setting Movie data to Adapter. Movie Data length : " + movieData.size());
+        }
+        //Log.v(LOG_TAG, "Entering setMovieData method");
 
         mMovieData = movieData;
         notifyDataSetChanged();
 
-        Log.v(LOG_TAG, "Leaving setMovieData method");
+        //Log.v(LOG_TAG, "Leaving setMovieData method");
+    }
+
+    public ArrayList<Movie> getMovies(){
+        return mMovieData;
     }
 
     public interface MovieAdapterOnClickHandler {
@@ -80,7 +89,8 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
             super(itemView);
             mMovieThumbnail = itemView.findViewById(R.id.movie_thumbnail);
             //Log.v(LOG_TAG, "Attaching movie overview view with ViewHolder");
-            itemView.setOnClickListener(this);
+            mMovieThumbnail.setOnClickListener(this);
+            //itemView.setOnClickListener(this); is working as well. But this isn't working for Trailers
         }
 
         @Override

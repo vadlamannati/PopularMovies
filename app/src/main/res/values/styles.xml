@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
@@ -8,31 +8,74 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
-    <style name="HeaderTextStyling" >
-
-        <item name="android:textSize">@dimen/text_size</item>
-        <item name="android:color">@android:color/black</item>
-        <item name="android:paddingLeft">@dimen/padding_left</item>
-        <item name="android:textStyle">italic</item>
-        <item name="android:paddingTop">@dimen/padding_top</item>
-        <item name="android:layout_height">@dimen/layout_height</item>
-
+    <style name="NoActionBar">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:textColorPrimary">@android:color/white</item>
+        <item name="android:textColorSecondary">@android:color/white</item>
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily" tools:targetApi="jelly_bean">sans-serif</item>
     </style>
 
-    <style name="ValueTextStyling" >
-
-        <item name="android:textSize">@dimen/text_size</item>
-        <item name="android:color">@android:color/black</item>
-        <item name="android:paddingLeft">@dimen/padding_left</item>
-        <item name="android:paddingTop">@dimen/padding_top</item>
-        <item name="android:layout_height">@dimen/layout_height</item>
-
+    <style name="HeadTextStyle" >
+        <item name="android:textSize">@dimen/large_text_size</item>
+        <item name="android:color">@android:color/white</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily" tools:targetApi="jelly_bean">sans-serif</item>
+        <item name="android:layout_margin">@dimen/margin</item>
     </style>
 
-    <style name="LayoutStyling">
+    <style name="SubHeadTextStyle" >
+        <item name="android:textSize">@dimen/sub_head_text_size</item>
+        <item name="android:color">@android:color/black</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily" tools:targetApi="jelly_bean">sans-serif</item>
+        <item name="android:layout_margin">@dimen/margin</item>
+    </style>
 
+    <style name="SideHeadTextStyle" >
+        <item name="android:textSize">@dimen/side_head_text_size</item>
+        <item name="android:color">@android:color/black</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily" tools:targetApi="jelly_bean">sans-serif</item>
+        <item name="android:layout_margin">@dimen/margin</item>
+    </style>
+
+    <style name="FavoriteExplanationStyle" >
+        <item name="android:textSize">@dimen/paragraph_text_size</item>
+        <item name="android:color">@android:color/black</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily" tools:targetApi="jelly_bean">sans-serif</item>
+        <item name="android:layout_margin">@dimen/margin</item>
+    </style>
+
+    <style name="ParagraghTextStyle" >
+        <item name="android:textSize">@dimen/paragraph_text_size</item>
+        <item name="android:color">@android:color/black</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:fontFamily" tools:targetApi="jelly_bean">sans-serif</item>
+        <item name="android:layout_margin">@dimen/margin</item>
+    </style>
+
+    <style name="SetMargins" >
+        <item name="android:layout_margin">@dimen/margin</item>
+    </style>
+
+    <style name="SetMarginsForSeparator" >
+        <item name="android:layout_marginTop">@dimen/separator_margin_top</item>
+        <item name="android:layout_marginBottom">@dimen/separator_margin_bottom</item>
+    </style>
+
+    <style name="MainActivityStyle">
         <item name="android:padding">@dimen/padding</item>
-
+        <item name="android:background">@color/mainActivityBackgroundColor</item>
     </style>
-    
+
+    <style name="SpecificMovieStyle">
+        <item name="android:padding">@dimen/padding</item>
+        <item name="android:background">@color/movieDetailBackgroundColor</item>
+    </style>
+
 </resources>
