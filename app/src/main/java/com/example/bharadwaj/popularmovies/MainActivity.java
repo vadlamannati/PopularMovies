@@ -148,9 +148,9 @@ public class MainActivity extends AppCompatActivity implements
                 Uri uri = FavoriteContract.Favorites.CONTENT_URI;
                 uri = uri.buildUpon().appendPath(stringId).build();
                 getContentResolver().delete(uri, null, null);
+                mFavoritesAdapter.setCursor(null);
+                Log.v(LOG_TAG, "Restarting Loader");
                 getSupportLoaderManager().restartLoader(FAVORITES_LOADER_ID, null, MainActivity.this);
-                mFavoritesAdapter.notifyItemChanged(position);
-                mFavoritesAdapter.notifyDataSetChanged();
             }
         }).attachToRecyclerView(mainActivityBinding.moviesRecyclerView);
 
