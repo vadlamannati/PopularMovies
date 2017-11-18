@@ -43,9 +43,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                app:layout_constraintGuide_percent="0.5"
-                tools:layout_editor_absoluteX="184dp"
-                tools:layout_editor_absoluteY="81dp" />
+                app:layout_constraintGuide_percent="0.5" />
 
             <ImageView
                 android:id="@+id/movie_poster"
@@ -62,7 +60,7 @@
                 style="@style/SideHeadTextStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="TextView"
+                tools:text="@string/movie_release_year"
                 app:layout_constraintLeft_toLeftOf="@+id/guideline"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/movie_poster" />
@@ -72,7 +70,7 @@
                 style="@style/SideHeadTextStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="TextView"
+                tools:text="@string/movie_user_rating"
                 app:layout_constraintBottom_toBottomOf="@+id/movie_poster"
                 app:layout_constraintLeft_toLeftOf="@+id/guideline"
                 app:layout_constraintRight_toRightOf="parent"
@@ -83,7 +81,7 @@
                 style="@style/ParagraghTextStyle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="TextView"
+                tools:text="@string/movie_plot"
                 app:layout_constraintHorizontal_bias="0.486"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
@@ -92,7 +90,7 @@
             <View
                 android:id="@+id/trailers_saperator"
                 style="@style/SetMarginsForSeparator"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="1dp"
                 android:background="@android:color/black"
                 app:layout_constraintLeft_toLeftOf="parent"
@@ -104,7 +102,7 @@
                 style="@style/SubHeadTextStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/trailerHeading"
+                tools:text="@string/trailerHeading"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/trailers_saperator" />
 
@@ -147,7 +145,7 @@
             <View
                 android:id="@+id/reviews_saperator"
                 style="@style/SetMarginsForSeparator"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="1dp"
                 android:background="@android:color/black"
                 app:layout_constraintLeft_toLeftOf="parent"
@@ -159,7 +157,7 @@
                 style="@style/SubHeadTextStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/reviewHeading"
+                tools:text="@string/reviewHeading"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/reviews_saperator" />
 
@@ -186,7 +184,9 @@
                 app:layout_constraintBottom_toBottomOf="@+id/movie_reviews_view"
                 app:layout_constraintLeft_toLeftOf="@+id/movie_reviews_view"
                 app:layout_constraintRight_toRightOf="@+id/movie_reviews_view"
-                app:layout_constraintTop_toTopOf="@+id/movie_reviews_view" />
+                app:layout_constraintTop_toTopOf="@+id/movie_reviews_view"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp" />
 
             <TextView
                 android:id="@+id/reviews_error_view"

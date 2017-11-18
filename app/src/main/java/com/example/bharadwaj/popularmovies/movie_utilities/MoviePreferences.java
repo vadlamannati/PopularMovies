@@ -11,4 +11,5 @@ public class MoviePreferences {
 
     public final static String DEFAULT_SORT_PREFERENCE = SORT_BY_POPULAR;
 
+    public static final String FAVORITE_MOVIES = "favorite_movies";
 }
