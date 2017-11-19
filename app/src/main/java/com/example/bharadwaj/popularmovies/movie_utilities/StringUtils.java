@@ -15,4 +15,7 @@ public class StringUtils {
     public static final String SAVING_INSTANCE = "saving_instance";
     public static final String SAVED_MOVIES = "saved_movies";
     public static final String SAVED_CURSOR = "saved_cursor";
+    public static final String SAVED_STATE = "saved_state";
+    public static final String SAVED_SCROLL_VIEW_POSITION = "saved_scroll_view_position";
+
 }

@@ -7,6 +7,7 @@ import android.database.Cursor;
 import android.databinding.DataBindingUtil;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
@@ -51,6 +52,8 @@ public class MainActivity extends AppCompatActivity implements
     private Cursor mCursor;
     private FavoritesCursorBundle mSerializableFavorites;
     private GridLayoutManager mGridLayoutManager;
+    private LinearLayoutManager mLinearLayoutManager;
+    private Parcelable mLayoutManagerState;
 
     Bundle bundle = new Bundle();
     String currentSelection = MoviePreferences.DEFAULT_SORT_PREFERENCE;
@@ -91,6 +94,7 @@ public class MainActivity extends AppCompatActivity implements
         if (NetworkUtils.isConnectedToInternet(this)) {
 
             if (null != savedInstanceState) {
+                mLayoutManagerState = savedInstanceState.getParcelable(StringUtils.SAVED_STATE);
                 currentSelection = savedInstanceState.getString(StringUtils.SAVING_INSTANCE);
                 Log.v(LOG_TAG, "Retrieving saved instance : " + currentSelection);
 
@@ -99,10 +103,12 @@ public class MainActivity extends AppCompatActivity implements
                     resetAdapterForMovieData();
                     loadMovies(currentSelection);
                 } else if (currentSelection.equals(MoviePreferences.FAVORITE_MOVIES)) {
-                    mSerializableFavorites = (FavoritesCursorBundle) savedInstanceState.getSerializable(StringUtils.SAVED_CURSOR);
+                    mSerializableFavorites = (FavoritesCursorBundle) savedInstanceState.getParcelable(StringUtils.SAVED_CURSOR);
                     mCursor = mSerializableFavorites.getFavoriteCursor();
+
                     resetAdapterForFavoriteMovieData();
                     loadFavoriteMovies();
+                    mLinearLayoutManager.onRestoreInstanceState(mLayoutManagerState);
                 }
                 mSavedMovies = null;
             } else {
@@ -143,7 +149,8 @@ public class MainActivity extends AppCompatActivity implements
         if (mCursor != null) {
             mFavoritesAdapter.setCursor(mCursor);
         }
-        mainActivityBinding.moviesRecyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
+        mLinearLayoutManager = new LinearLayoutManager(MainActivity.this);
+        mainActivityBinding.moviesRecyclerView.setLayoutManager(mLinearLayoutManager);
         mainActivityBinding.moviesRecyclerView.setAdapter(mFavoritesAdapter);
         mainActivityBinding.moviesRecyclerView.setHasFixedSize(true);
 
@@ -193,9 +200,6 @@ public class MainActivity extends AppCompatActivity implements
 
     void resetAdapterForMovieData() {
         mMovieAdapter = new MovieAdapter(this);
-        if (mSavedMovies != null) {
-            mMovieAdapter.setMovieData(mSavedMovies);
-        }
 
         if (MainActivity.this.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
             Log.v(LOG_TAG, "Device orientation : PORTRAIT");
@@ -205,6 +209,10 @@ public class MainActivity extends AppCompatActivity implements
             Log.v(LOG_TAG, "Device orientation : + LANDSCAPE");
             mGridLayoutManager = new GridLayoutManager(MainActivity.this, 5);
             mainActivityBinding.moviesRecyclerView.setLayoutManager(mGridLayoutManager);
+        }
+        if (mSavedMovies != null) {
+            mMovieAdapter.setMovieData(mSavedMovies);
+            mGridLayoutManager.onRestoreInstanceState(mLayoutManagerState);
         }
 
         mainActivityBinding.moviesRecyclerView.setAdapter(mMovieAdapter);
@@ -233,9 +241,14 @@ public class MainActivity extends AppCompatActivity implements
         switch (itemId) {
 
             case R.id.refresh:
-                String sortPreference = bundle.getString(StringUtils.SORT_PREFERENCE);
-                resetAdapterForMovieData();
-                loadMovies(sortPreference);
+                String sortPreference = currentSelection;
+                if (currentSelection.equals(MoviePreferences.SORT_BY_POPULAR) || currentSelection.equals(MoviePreferences.SORT_BY_TOP_RATED)) {
+                    resetAdapterForMovieData();
+                    loadMovies(sortPreference);
+                } else if (currentSelection.equals(MoviePreferences.FAVORITE_MOVIES)) {
+                    resetAdapterForFavoriteMovieData();
+                    loadFavoriteMovies();
+                }
                 break;
 
             case R.id.top_rated:
@@ -267,11 +280,13 @@ public class MainActivity extends AppCompatActivity implements
         super.onSaveInstanceState(outState);
         outState.putString(StringUtils.SAVING_INSTANCE, currentSelection);
         if (currentSelection.equals(MoviePreferences.FAVORITE_MOVIES)) {
-            mSerializableFavorites = new FavoritesCursorBundle();
+            mSerializableFavorites = new FavoritesCursorBundle(null);
             mSerializableFavorites.setFavoriteCursor(mCursor);
-            outState.putSerializable(StringUtils.SAVED_CURSOR, mSerializableFavorites);
+            outState.putParcelable(StringUtils.SAVED_CURSOR, mSerializableFavorites);
+            outState.putParcelable(StringUtils.SAVED_STATE, mLinearLayoutManager.onSaveInstanceState());
         } else {
             outState.putParcelableArrayList(StringUtils.SAVED_MOVIES, mMovieAdapter.getMovies());
+            outState.putParcelable(StringUtils.SAVED_STATE, mGridLayoutManager.onSaveInstanceState());
         }
         Log.v(LOG_TAG, "Saving instance to : " + currentSelection);
     }

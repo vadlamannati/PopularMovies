@@ -9,6 +9,9 @@ import android.database.Cursor;
 import android.databinding.DataBindingUtil;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Parcel;
+import android.os.Parcelable;
+import android.os.PersistableBundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
@@ -20,11 +23,13 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ScrollView;
 
 import com.example.bharadwaj.popularmovies.databinding.ActivitySpecificMovieDetailBinding;
 import com.example.bharadwaj.popularmovies.favorites.FavoriteContract.Favorites;
 import com.example.bharadwaj.popularmovies.json_parsers.MovieJSONParser;
 import com.example.bharadwaj.popularmovies.movie_utilities.NetworkUtils;
+import com.example.bharadwaj.popularmovies.movie_utilities.StringUtils;
 import com.example.bharadwaj.popularmovies.movies.Movie;
 import com.example.bharadwaj.popularmovies.reviews.Review;
 import com.example.bharadwaj.popularmovies.reviews.ReviewAdapter;
@@ -41,10 +46,10 @@ public class SpecificMovieDetail extends AppCompatActivity implements
         LoaderManager.LoaderCallbacks<Object>{
 
     private static final String LOG_TAG = SpecificMovieDetail.class.getSimpleName();
-    private static final String VIDEOS = "videos";
     private static final String ID = "id";
     private static final int TRAILER_LOADER_ID = 51;
     private static final int REVIEW_LOADER_ID = 52;
+    private GridLayoutManager mGridLayoutManager;
 
     //Using Binding to avoid findViewById multiple times. Binding is more faster as well.
     static ActivitySpecificMovieDetailBinding specificMovieDetailBinding;
@@ -53,6 +58,15 @@ public class SpecificMovieDetail extends AppCompatActivity implements
     private Movie specificMovieDetails = null;
     private Bundle mBundle = new Bundle();
     MaterialFavoriteButton favoriteButton;
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        Log.v(LOG_TAG, "Saving scroll positions" + specificMovieDetailBinding.specificMovieDetailScrollView.getScrollX() + " and " + specificMovieDetailBinding.specificMovieDetailScrollView.getScrollY());
+        outState.putIntArray(StringUtils.SAVED_SCROLL_VIEW_POSITION,
+                new int[]{ specificMovieDetailBinding.specificMovieDetailScrollView.getScrollX(), specificMovieDetailBinding.specificMovieDetailScrollView.getScrollY()});
+    }
 
     protected static void showErrorMessageForTrailers(String errorMessage) {
         Log.v(LOG_TAG, "Entering showErrorMessageForTrailers method");
@@ -145,10 +159,12 @@ public class SpecificMovieDetail extends AppCompatActivity implements
 
         if (SpecificMovieDetail.this.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
             Log.v(LOG_TAG, "Device orientation : PORTRAIT");
-            specificMovieDetailBinding.movieTrailersView.setLayoutManager(new GridLayoutManager(SpecificMovieDetail.this, 3));
+            mGridLayoutManager = new GridLayoutManager(SpecificMovieDetail.this, 3);
+            specificMovieDetailBinding.movieTrailersView.setLayoutManager(mGridLayoutManager);
         } else {
             Log.v(LOG_TAG, "Device orientation : + LANDSCAPE");
-            specificMovieDetailBinding.movieTrailersView.setLayoutManager(new GridLayoutManager(SpecificMovieDetail.this, 5));
+            mGridLayoutManager = new GridLayoutManager(SpecificMovieDetail.this, 5);
+            specificMovieDetailBinding.movieTrailersView.setLayoutManager(mGridLayoutManager);
         }
 
 
@@ -178,6 +194,19 @@ public class SpecificMovieDetail extends AppCompatActivity implements
             SpecificMovieDetail.showErrorMessageforReviews(getString(R.string.no_active_network));
         }
 
+        if(null != savedInstanceState){
+            final int[] position = savedInstanceState.getIntArray(StringUtils.SAVED_SCROLL_VIEW_POSITION);
+            Log.v(LOG_TAG, "Retrieving scroll positions " + position[0] + " and " + position[1]);
+            Log.v(LOG_TAG, "Scroll view check : " + specificMovieDetailBinding.specificMovieDetailScrollView);
+            if(position != null)
+                specificMovieDetailBinding.specificMovieDetailScrollView.post(new Runnable() {
+                    public void run() {
+                        specificMovieDetailBinding.specificMovieDetailScrollView.scrollTo(position[0], position[1]);
+                    }
+                });
+            Log.v(LOG_TAG, "Retrieving scroll positions" + specificMovieDetailBinding.specificMovieDetailScrollView.getScrollX() + " and " + specificMovieDetailBinding.specificMovieDetailScrollView.getScrollY());
+
+        }
         Log.v(LOG_TAG, "Leaving onCreate");
     }
 
