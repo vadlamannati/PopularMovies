@@ -9,9 +9,8 @@ import android.database.Cursor;
 import android.databinding.DataBindingUtil;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Parcel;
 import android.os.Parcelable;
-import android.os.PersistableBundle;
+import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
@@ -43,13 +42,15 @@ import java.util.ArrayList;
 
 public class SpecificMovieDetail extends AppCompatActivity implements
         TrailerAdapter.TrailerAdapterOnClickHandler,
-        LoaderManager.LoaderCallbacks<Object>{
+        LoaderManager.LoaderCallbacks<Object> {
 
     private static final String LOG_TAG = SpecificMovieDetail.class.getSimpleName();
     private static final String ID = "id";
     private static final int TRAILER_LOADER_ID = 51;
     private static final int REVIEW_LOADER_ID = 52;
     private GridLayoutManager mGridLayoutManager;
+    private LinearLayoutManager mLinearLayoutManager;
+    private Parcelable mLayoutManagerState;
 
     //Using Binding to avoid findViewById multiple times. Binding is more faster as well.
     static ActivitySpecificMovieDetailBinding specificMovieDetailBinding;
@@ -59,13 +60,24 @@ public class SpecificMovieDetail extends AppCompatActivity implements
     private Bundle mBundle = new Bundle();
     MaterialFavoriteButton favoriteButton;
 
+    private ConstraintLayout specificMovieLayout;
+    private ArrayList<Review> mSavedReviews;
+    private ArrayList<Trailer> mSavedTrailers;
+
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
-        Log.v(LOG_TAG, "Saving scroll positions" + specificMovieDetailBinding.specificMovieDetailScrollView.getScrollX() + " and " + specificMovieDetailBinding.specificMovieDetailScrollView.getScrollY());
+        Log.v(LOG_TAG, "Saving scroll positions" + specificMovieLayout.getScrollX() + " and " + specificMovieLayout.getScrollY());
         outState.putIntArray(StringUtils.SAVED_SCROLL_VIEW_POSITION,
-                new int[]{ specificMovieDetailBinding.specificMovieDetailScrollView.getScrollX(), specificMovieDetailBinding.specificMovieDetailScrollView.getScrollY()});
+                new int[]{specificMovieLayout.getScrollX(), specificMovieLayout.getScrollY()});
+
+        outState.putParcelableArrayList(StringUtils.SAVED_TRAILERS, mTrailerAdapter.getTrailers());
+        outState.putParcelableArrayList(StringUtils.SAVED_REVIEWS, mReviewAdapter.getReviews());
+
+        outState.putParcelable(StringUtils.SAVED_TRAILER_STATE, mGridLayoutManager.onSaveInstanceState());
+        outState.putParcelable(StringUtils.SAVED_REVIEW_STATE, mLinearLayoutManager.onSaveInstanceState());
+
     }
 
     protected static void showErrorMessageForTrailers(String errorMessage) {
@@ -103,7 +115,7 @@ public class SpecificMovieDetail extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         specificMovieDetailBinding = DataBindingUtil.setContentView(this, R.layout.activity_specific_movie_detail);
 
-        Toolbar toolbar = findViewById(R.id.my_toolbar);
+        Toolbar toolbar = specificMovieDetailBinding.myToolbar;
         Log.v(LOG_TAG, "ToolBar : " + toolbar);
         setSupportActionBar(toolbar);
 
@@ -144,9 +156,9 @@ public class SpecificMovieDetail extends AppCompatActivity implements
                     public void onFavoriteChanged(MaterialFavoriteButton buttonView, boolean favoriteStatusChanged) {
                         Log.v(LOG_TAG, "Favorite button clicked. Favorite status changed to: " + favoriteStatusChanged);
 
-                        if(favoriteStatusChanged){
+                        if (favoriteStatusChanged) {
                             insertMovieIntoDB();
-                        }else {
+                        } else {
                             deleteMovieFromDB();
                         }
 
@@ -166,14 +178,16 @@ public class SpecificMovieDetail extends AppCompatActivity implements
             mGridLayoutManager = new GridLayoutManager(SpecificMovieDetail.this, 5);
             specificMovieDetailBinding.movieTrailersView.setLayoutManager(mGridLayoutManager);
         }
-
-
         specificMovieDetailBinding.movieTrailersView.setAdapter(mTrailerAdapter);
         specificMovieDetailBinding.movieTrailersView.setHasFixedSize(true);
 
+        if (savedInstanceState != null) {
+            mSavedTrailers = savedInstanceState.getParcelableArrayList(StringUtils.SAVED_TRAILERS);
+        }
+
         if (NetworkUtils.isConnectedToInternet(this)) {
             if (null != specificMovieDetails) {
-                loadTrailersOnStart(specificMovieDetails.getID());
+                loadTrailers(specificMovieDetails.getID());
             }
         } else {
             SpecificMovieDetail.showErrorMessageForTrailers(getString(R.string.no_active_network));
@@ -182,35 +196,47 @@ public class SpecificMovieDetail extends AppCompatActivity implements
 
         //Fetching Reviews
         mReviewAdapter = new ReviewAdapter();
-        specificMovieDetailBinding.movieReviewsView.setLayoutManager(new LinearLayoutManager(SpecificMovieDetail.this));
+        mLinearLayoutManager = new LinearLayoutManager(SpecificMovieDetail.this);
+        specificMovieDetailBinding.movieReviewsView.setLayoutManager(mLinearLayoutManager);
         specificMovieDetailBinding.movieReviewsView.setAdapter(mReviewAdapter);
         specificMovieDetailBinding.movieReviewsView.setHasFixedSize(true);
 
+        if (savedInstanceState != null) {
+            mSavedReviews = savedInstanceState.getParcelableArrayList(StringUtils.SAVED_REVIEWS);
+        }
+
         if (NetworkUtils.isConnectedToInternet(this)) {
             if (null != specificMovieDetails) {
-                loadReviewsOnStart(specificMovieDetails.getID());
+                loadReviews(specificMovieDetails.getID());
             }
         } else {
             SpecificMovieDetail.showErrorMessageforReviews(getString(R.string.no_active_network));
         }
 
-        if(null != savedInstanceState){
+        specificMovieLayout = specificMovieDetailBinding.specificMovieDetailLayout;
+        if (null != savedInstanceState) {
             final int[] position = savedInstanceState.getIntArray(StringUtils.SAVED_SCROLL_VIEW_POSITION);
             Log.v(LOG_TAG, "Retrieving scroll positions " + position[0] + " and " + position[1]);
-            Log.v(LOG_TAG, "Scroll view check : " + specificMovieDetailBinding.specificMovieDetailScrollView);
-            if(position != null)
-                specificMovieDetailBinding.specificMovieDetailScrollView.post(new Runnable() {
+            Log.v(LOG_TAG, "Scroll view check : " + specificMovieLayout);
+            if (position != null)
+                specificMovieLayout.post(new Runnable() {
                     public void run() {
-                        specificMovieDetailBinding.specificMovieDetailScrollView.scrollTo(position[0], position[1]);
+                        specificMovieLayout.scrollTo(position[0], position[1]);
                     }
                 });
-            Log.v(LOG_TAG, "Retrieving scroll positions" + specificMovieDetailBinding.specificMovieDetailScrollView.getScrollX() + " and " + specificMovieDetailBinding.specificMovieDetailScrollView.getScrollY());
+            Log.v(LOG_TAG, "Retrieving scroll positions" + specificMovieLayout.getScrollX() + " and " + specificMovieLayout.getScrollY());
+
+            mLayoutManagerState = savedInstanceState.getParcelable(StringUtils.SAVED_TRAILER_STATE);
+            mGridLayoutManager.onRestoreInstanceState(mLayoutManagerState);
+
+            mLayoutManagerState = savedInstanceState.getParcelable(StringUtils.SAVED_REVIEW_STATE);
+            mLinearLayoutManager.onRestoreInstanceState(mLayoutManagerState);
 
         }
         Log.v(LOG_TAG, "Leaving onCreate");
     }
 
-    boolean checkIfMovieIsFavorite(){
+    boolean checkIfMovieIsFavorite() {
 
         String selection = Favorites.COLUMN_MOVIE_ID + "= ?";
         String[] selectionArgs = {specificMovieDetails.getID()};
@@ -220,17 +246,17 @@ public class SpecificMovieDetail extends AppCompatActivity implements
                 selection,
                 selectionArgs,
                 null);
-        if(cursor.getCount()==0){
+        if (cursor.getCount() == 0) {
             //implement
             Log.v(LOG_TAG, "This movie isn't a favorite " + specificMovieDetails.getTitle());
             return false;
-        }else {
+        } else {
             Log.v(LOG_TAG, "This movie is a favorite one " + specificMovieDetails.getTitle());
             return true;
         }
     }
 
-    void insertMovieIntoDB(){
+    void insertMovieIntoDB() {
 
         Log.v(LOG_TAG, "Inserting Movie details : " + specificMovieDetails.toString());
 
@@ -246,7 +272,7 @@ public class SpecificMovieDetail extends AppCompatActivity implements
         Log.v(LOG_TAG, "Inserted Row Uri is : " + insertedRowUri.getPath());
     }
 
-    void deleteMovieFromDB(){
+    void deleteMovieFromDB() {
         String selection = Favorites.COLUMN_MOVIE_ID + "= ?";
         String[] selectionArgs = {specificMovieDetails.getID()};
 
@@ -260,16 +286,16 @@ public class SpecificMovieDetail extends AppCompatActivity implements
         int rowsDeleted = getContentResolver().delete(Favorites.CONTENT_URI,
                 selection,
                 selectionArgs);
-        if(rowsDeleted != 0 ){
+        if (rowsDeleted != 0) {
             Log.v(LOG_TAG, "Rows deleted : " + rowsDeleted);
             Log.v(LOG_TAG, "This movie removed as a favorite " + specificMovieDetails.getTitle());
-        }else {
+        } else {
             Log.v(LOG_TAG, "This movie is not in th favorites DB " + specificMovieDetails.getTitle());
         }
     }
 
 
-private void setMovieDetailsToActivity(Movie movie) {
+    private void setMovieDetailsToActivity(Movie movie) {
         MovieJSONParser.buildPosterFromPath(movie.getPosterPath(), specificMovieDetailBinding.moviePoster);
         specificMovieDetailBinding.movieName.setText(movie.getTitle());
         specificMovieDetailBinding.movieReleaseYear.setText(movie.getReleaseDate());
@@ -277,18 +303,24 @@ private void setMovieDetailsToActivity(Movie movie) {
         specificMovieDetailBinding.moviePlot.setText(movie.getOverview());
     }
 
-    private void loadTrailersOnStart(String movieID) {
+    private void loadTrailers(String movieID) {
         //showMovies(sortPreference);
         mBundle.putString(ID, movieID);
-        Log.v(LOG_TAG, "Initializing Loader");
-        getSupportLoaderManager().initLoader(TRAILER_LOADER_ID, mBundle, SpecificMovieDetail.this);
+        if (mSavedTrailers != null) {
+            mTrailerAdapter.setTrailers(mSavedTrailers);
+        }
+        Log.v(LOG_TAG, "Restarting Trailer Loader");
+        getSupportLoaderManager().restartLoader(TRAILER_LOADER_ID, mBundle, SpecificMovieDetail.this);
     }
 
-    private void loadReviewsOnStart(String movieID) {
+    private void loadReviews(String movieID) {
         //showMovies(sortPreference);
         mBundle.putString(ID, movieID);
-        Log.v(LOG_TAG, "Initializing Loader");
-        getSupportLoaderManager().initLoader(REVIEW_LOADER_ID, mBundle, SpecificMovieDetail.this);
+        if (mSavedReviews != null) {
+            mReviewAdapter.setReviews(mSavedReviews);
+        }
+        Log.v(LOG_TAG, "Restarting Review Loader");
+        getSupportLoaderManager().restartLoader(REVIEW_LOADER_ID, mBundle, SpecificMovieDetail.this);
     }
 
     @Override
@@ -299,7 +331,7 @@ private void setMovieDetailsToActivity(Movie movie) {
         //Log.v(LOG_TAG, "Leaving performOnClick method");
     }
 
-    void startIntentForTrailer(Context context, String key){
+    void startIntentForTrailer(Context context, String key) {
         Intent appIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube:" + key));
         Intent webIntent = new Intent(Intent.ACTION_VIEW,
                 Uri.parse("http://www.youtube.com/watch?v=" + key));
@@ -330,11 +362,11 @@ private void setMovieDetailsToActivity(Movie movie) {
     public Loader onCreateLoader(int loaderID, Bundle bundle) {
         Log.v(LOG_TAG, "Entering onCreateLoader");
         Loader loader;
-        if(loaderID == TRAILER_LOADER_ID) {
+        if (loaderID == TRAILER_LOADER_ID) {
             loader = new TrailerAsyncTaskLoader(this, specificMovieDetailBinding.trailerProgressBar, mTrailerAdapter, bundle);
-        }else if(loaderID == REVIEW_LOADER_ID){
+        } else if (loaderID == REVIEW_LOADER_ID) {
             loader = new ReviewAsyncTaskLoader(this, specificMovieDetailBinding.reviewProgressBar, mReviewAdapter, bundle);
-        }else {
+        } else {
             loader = null;
         }
         Log.v(LOG_TAG, "Leaving onCreateLoader");
@@ -347,11 +379,11 @@ private void setMovieDetailsToActivity(Movie movie) {
         Log.v(LOG_TAG, "Loader ID : " + loader.getId());
 
         if (objects == null && Integer.parseInt(Review.mTotalResults) != 0) {
-            if(loader.getId() == TRAILER_LOADER_ID){
+            if (loader.getId() == TRAILER_LOADER_ID) {
                 Log.v(LOG_TAG, "Couldn't fetch Trailers to show");
                 SpecificMovieDetail.showErrorMessageForTrailers(getString(R.string.error_occurred));
             }
-            if(loader.getId() == REVIEW_LOADER_ID){
+            if (loader.getId() == REVIEW_LOADER_ID) {
                 Log.v(LOG_TAG, "Couldn't fetch Reviews to show");
                 SpecificMovieDetail.showErrorMessageforReviews(getString(R.string.error_occurred));
             }
@@ -359,17 +391,17 @@ private void setMovieDetailsToActivity(Movie movie) {
             return;
         }
 
-        if(loader.getId() == TRAILER_LOADER_ID){
+        if (loader.getId() == TRAILER_LOADER_ID) {
             specificMovieDetailBinding.trailerProgressBar.setVisibility(View.INVISIBLE);
 
             ArrayList<Trailer> trailers = new ArrayList<>();
-            trailers = (ArrayList<Trailer>)objects;
+            trailers = (ArrayList<Trailer>) objects;
 
             Log.v(LOG_TAG, "Attaching Trailers to adapter");
-            mTrailerAdapter.setTrailerData(trailers);
+            mTrailerAdapter.setTrailers(trailers);
         }
 
-        if(loader.getId() == REVIEW_LOADER_ID){
+        if (loader.getId() == REVIEW_LOADER_ID) {
             specificMovieDetailBinding.reviewProgressBar.setVisibility(View.INVISIBLE);
             if (Integer.parseInt(Review.mTotalResults) == 0) {
                 Log.v(LOG_TAG, "This movie doesn't have any Reviews to show");
@@ -378,10 +410,10 @@ private void setMovieDetailsToActivity(Movie movie) {
                 return;
             }
             ArrayList<Review> reviews = new ArrayList<>();
-            reviews = (ArrayList<Review>)objects;
+            reviews = (ArrayList<Review>) objects;
 
             Log.v(LOG_TAG, "Attaching reviews to adapter");
-            mReviewAdapter.setReviewData(reviews);
+            mReviewAdapter.setReviews(reviews);
         }
         Log.v(LOG_TAG, "Leaving onLoadFinished");
 
