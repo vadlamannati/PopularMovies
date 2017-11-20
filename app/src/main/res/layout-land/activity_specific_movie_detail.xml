@@ -15,9 +15,10 @@
             android:background="?attr/colorPrimary"
             android:elevation="4dp"
             android:theme="@style/NoActionBar"
-            app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
+            app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
 
         <ScrollView
+            android:id="@+id/specific_movie_detail_scroll_view"
             style="@style/SpecificMovieStyle"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
@@ -43,9 +44,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    app:layout_constraintGuide_percent="0.5"
-                    tools:layout_editor_absoluteX="184dp"
-                    tools:layout_editor_absoluteY="81dp" />
+                    app:layout_constraintGuide_percent="0.5" />
 
                 <ImageView
                     android:id="@+id/movie_poster"
@@ -62,37 +61,37 @@
                     style="@style/SideHeadTextStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="TextView"
                     app:layout_constraintLeft_toLeftOf="@+id/guideline"
                     app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintTop_toTopOf="@+id/movie_poster" />
+                    app:layout_constraintTop_toTopOf="@+id/movie_poster"
+                    tools:text="@string/movie_release_year" />
 
                 <TextView
                     android:id="@+id/movie_user_rating"
                     style="@style/SideHeadTextStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="TextView"
                     app:layout_constraintBottom_toBottomOf="@+id/movie_poster"
                     app:layout_constraintLeft_toLeftOf="@+id/guideline"
                     app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/movie_release_year" />
+                    app:layout_constraintTop_toBottomOf="@+id/movie_release_year"
+                    tools:text="@string/movie_user_rating" />
 
                 <TextView
                     android:id="@+id/movie_plot"
                     style="@style/ParagraghTextStyle"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="TextView"
                     app:layout_constraintHorizontal_bias="0.486"
                     app:layout_constraintLeft_toLeftOf="parent"
                     app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/movie_poster" />
+                    app:layout_constraintTop_toBottomOf="@+id/movie_poster"
+                    tools:text="@string/movie_plot" />
 
                 <View
                     android:id="@+id/trailers_saperator"
                     style="@style/SetMarginsForSeparator"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="1dp"
                     android:background="@android:color/black"
                     app:layout_constraintLeft_toLeftOf="parent"
@@ -147,7 +146,7 @@
                 <View
                     android:id="@+id/reviews_saperator"
                     style="@style/SetMarginsForSeparator"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="1dp"
                     android:background="@android:color/black"
                     app:layout_constraintLeft_toLeftOf="parent"
@@ -181,6 +180,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="8dp"
+                    android:layout_marginLeft="8dp"
+                    android:layout_marginRight="8dp"
                     android:layout_marginStart="8dp"
                     android:visibility="invisible"
                     app:layout_constraintBottom_toBottomOf="@+id/movie_reviews_view"

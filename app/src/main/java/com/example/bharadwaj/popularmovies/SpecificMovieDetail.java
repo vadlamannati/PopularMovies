@@ -10,7 +10,6 @@ import android.databinding.DataBindingUtil;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
-import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
@@ -60,7 +59,7 @@ public class SpecificMovieDetail extends AppCompatActivity implements
     private Bundle mBundle = new Bundle();
     MaterialFavoriteButton favoriteButton;
 
-    private ConstraintLayout specificMovieLayout;
+    private ScrollView specificMovieScrollView;
     private ArrayList<Review> mSavedReviews;
     private ArrayList<Trailer> mSavedTrailers;
 
@@ -68,9 +67,9 @@ public class SpecificMovieDetail extends AppCompatActivity implements
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
-        Log.v(LOG_TAG, "Saving scroll positions" + specificMovieLayout.getScrollX() + " and " + specificMovieLayout.getScrollY());
+        Log.v(LOG_TAG, "Saving scroll positions" + specificMovieScrollView.getScrollX() + " and " + specificMovieScrollView.getScrollY());
         outState.putIntArray(StringUtils.SAVED_SCROLL_VIEW_POSITION,
-                new int[]{specificMovieLayout.getScrollX(), specificMovieLayout.getScrollY()});
+                new int[]{specificMovieScrollView.getScrollX(), specificMovieScrollView.getScrollY()});
 
         outState.putParcelableArrayList(StringUtils.SAVED_TRAILERS, mTrailerAdapter.getTrailers());
         outState.putParcelableArrayList(StringUtils.SAVED_REVIEWS, mReviewAdapter.getReviews());
@@ -213,18 +212,18 @@ public class SpecificMovieDetail extends AppCompatActivity implements
             SpecificMovieDetail.showErrorMessageforReviews(getString(R.string.no_active_network));
         }
 
-        specificMovieLayout = specificMovieDetailBinding.specificMovieDetailLayout;
+        specificMovieScrollView = specificMovieDetailBinding.specificMovieDetailScrollView;
         if (null != savedInstanceState) {
             final int[] position = savedInstanceState.getIntArray(StringUtils.SAVED_SCROLL_VIEW_POSITION);
             Log.v(LOG_TAG, "Retrieving scroll positions " + position[0] + " and " + position[1]);
-            Log.v(LOG_TAG, "Scroll view check : " + specificMovieLayout);
+            Log.v(LOG_TAG, "Scroll view check : " + specificMovieScrollView);
             if (position != null)
-                specificMovieLayout.post(new Runnable() {
+                specificMovieScrollView.post(new Runnable() {
                     public void run() {
-                        specificMovieLayout.scrollTo(position[0], position[1]);
+                        specificMovieScrollView.scrollTo(position[0], position[1]);
                     }
                 });
-            Log.v(LOG_TAG, "Retrieving scroll positions" + specificMovieLayout.getScrollX() + " and " + specificMovieLayout.getScrollY());
+            Log.v(LOG_TAG, "Retrieving scroll positions" + specificMovieScrollView.getScrollX() + " and " + specificMovieScrollView.getScrollY());
 
             mLayoutManagerState = savedInstanceState.getParcelable(StringUtils.SAVED_TRAILER_STATE);
             mGridLayoutManager.onRestoreInstanceState(mLayoutManagerState);
