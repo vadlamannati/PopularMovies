@@ -58,7 +58,7 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
         return mReviewData.size();
     }
 
-    public void setReviewData(ArrayList<Review> reviewData) {
+    public void setReviews(ArrayList<Review> reviewData) {
         //Log.v(LOG_TAG, "Setting Movie data to Adapter. Movie Data length : " + movieData.size());
         //Log.v(LOG_TAG, "Entering setMovieData method");
 

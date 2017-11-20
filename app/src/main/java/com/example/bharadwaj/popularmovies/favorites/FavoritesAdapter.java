@@ -15,6 +15,8 @@ import com.example.bharadwaj.popularmovies.json_parsers.MovieJSONParser;
 import com.example.bharadwaj.popularmovies.movies.Movie;
 import com.example.bharadwaj.popularmovies.favorites.FavoriteContract.Favorites;
 
+import java.util.ArrayList;
+
 /**
  * Created by Bharadwaj on 11/11/17.
  */
@@ -25,6 +27,19 @@ public class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapter.Favo
     private final FavoriteAdapterOnClickHandler mOnClickHandler;
 
     private Cursor mCursor;
+    private ArrayList<Movie> favoriteMovies = new ArrayList<>();
+
+    public ArrayList<Movie> getFavoriteMovies() {
+        return favoriteMovies;
+    }
+
+    public void setFavoriteMovies(ArrayList<Movie> favoriteMovies) {
+        this.favoriteMovies = favoriteMovies;
+    }
+
+    public void clearFavoriteMovies(){
+        this.favoriteMovies.clear();
+    }
 
     public void setCursor(Cursor cursor) {
         this.mCursor = cursor;
@@ -66,6 +81,7 @@ public class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapter.Favo
         String releaseDate = mCursor.getString(mCursor.getColumnIndex(Favorites.COLUMN_MOVIE_RELEASE_DATE));
 
         movie = new Movie(movieId, movieName, posterPath, overview, userRating, releaseDate);
+        favoriteMovies.add(movie);
 
         Log.v(LOG_TAG, "Binding Movie to the view : " + movie.toString());
 

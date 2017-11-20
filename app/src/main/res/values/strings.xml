@@ -4,7 +4,7 @@
     <string name="most_popular">@string/app_name</string>
     <string name="release_date">Released On:</string>
     <string name="user_rating">Rating :</string>
-    <string name="plot_header">Movie Plot :</string>
+    <string name="movie_plot">Movie Plot :</string>
     <string name="error_occurred">Sorry! An error has occurred. Please try again.</string>
     <string name="refresh">Refresh</string>
     <string name="movie_poster">Movie Poster</string>
@@ -19,6 +19,8 @@
     <string name="favorites">My Favorites</string>
     <string name="movie_name">Movie Name</string>
     <string name="favorites_explanation_text">Favorites Explanation Text</string>
+    <string name="movie_release_year">Release Year</string>
+    <string name="movie_user_rating">User Rating</string>
 
 
 </resources>
