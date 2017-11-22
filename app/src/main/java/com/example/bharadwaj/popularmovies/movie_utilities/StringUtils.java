@@ -22,4 +22,6 @@ public class StringUtils {
     public static final String SAVED_REVIEW_STATE = "saved_review_state";
     public static final String SAVED_SCROLL_VIEW_POSITION = "saved_scroll_view_position";
 
+    public static final String SAVED_FAVORITE_SELECTION = "saved_favorite_selection";
+
 }
