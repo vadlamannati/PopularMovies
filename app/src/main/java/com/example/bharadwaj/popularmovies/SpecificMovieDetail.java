@@ -275,13 +275,6 @@ public class SpecificMovieDetail extends AppCompatActivity implements
         String selection = Favorites.COLUMN_MOVIE_ID + "= ?";
         String[] selectionArgs = {specificMovieDetails.getID()};
 
-        Cursor cursor = getContentResolver().query(Favorites.CONTENT_URI,
-                null,
-                selection,
-                selectionArgs,
-                null);
-        Log.v(LOG_TAG, "Cursor count : " + cursor.getCount());
-
         int rowsDeleted = getContentResolver().delete(Favorites.CONTENT_URI,
                 selection,
                 selectionArgs);
@@ -335,7 +328,9 @@ public class SpecificMovieDetail extends AppCompatActivity implements
         Intent webIntent = new Intent(Intent.ACTION_VIEW,
                 Uri.parse("http://www.youtube.com/watch?v=" + key));
         try {
-            context.startActivity(appIntent);
+            if (appIntent.resolveActivity(getPackageManager()) != null) {
+                context.startActivity(appIntent);
+            }
         } catch (ActivityNotFoundException ex) {
             context.startActivity(webIntent);
         }

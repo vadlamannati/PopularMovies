@@ -92,7 +92,6 @@ public class MainActivity extends AppCompatActivity implements
 
         Log.v(LOG_TAG, "Current view selection is : " + currentSelection);
         if (NetworkUtils.isConnectedToInternet(this)) {
-
             if (null != savedInstanceState) {
                 mLayoutManagerState = savedInstanceState.getParcelable(StringUtils.SAVED_STATE);
                 currentSelection = savedInstanceState.getString(StringUtils.SAVING_INSTANCE);
@@ -121,6 +120,20 @@ public class MainActivity extends AppCompatActivity implements
         }
 
         Log.v(LOG_TAG, "Leaving onCreate");
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.v(LOG_TAG, "Entering onResume");
+        Log.v(LOG_TAG, "Current selection : " + currentSelection);
+        if (currentSelection.equals(MoviePreferences.FAVORITE_MOVIES)) {
+            resetAdapterForFavoriteMovieData();
+            clearFavoriteMovies();
+            loadFavoriteMovies();
+            mLinearLayoutManager.onRestoreInstanceState(mLayoutManagerState);
+        }
+        Log.v(LOG_TAG, "Leaving onResume");
     }
 
     private void loadMovies(String sortPreference) {
@@ -162,7 +175,6 @@ public class MainActivity extends AppCompatActivity implements
 
             @Override
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int swipeDir) {
-                int position = viewHolder.getAdapterPosition();
                 int id = (int) viewHolder.itemView.getTag();
                 String stringId = Integer.toString(id);
                 Uri uri = FavoriteContract.Favorites.CONTENT_URI;
@@ -194,8 +206,17 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     void clearMovies() {
-        Log.v(LOG_TAG, "Clearing movies from adapter");
-        mMovieAdapter.setMovieData(null);
+        if (mMovieAdapter != null) {
+            Log.v(LOG_TAG, "Clearing movies from adapter");
+            mMovieAdapter.setMovies(null);
+        }
+    }
+
+    void clearFavoriteMovies() {
+        if (mFavoritesAdapter != null) {
+            Log.v(LOG_TAG, "Clearing favorite movies from adapter");
+            mFavoritesAdapter.setCursor(null);
+        }
     }
 
     void resetAdapterForMovieData() {
@@ -211,7 +232,7 @@ public class MainActivity extends AppCompatActivity implements
             mainActivityBinding.moviesRecyclerView.setLayoutManager(mGridLayoutManager);
         }
         if (mSavedMovies != null) {
-            mMovieAdapter.setMovieData(mSavedMovies);
+            mMovieAdapter.setMovies(mSavedMovies);
             mGridLayoutManager.onRestoreInstanceState(mLayoutManagerState);
         }
 
@@ -265,6 +286,7 @@ public class MainActivity extends AppCompatActivity implements
 
             case R.id.favorites:
                 resetAdapterForFavoriteMovieData();
+                clearFavoriteMovies();
                 loadFavoriteMovies();
                 currentSelection = MoviePreferences.FAVORITE_MOVIES;
                 break;
@@ -278,23 +300,21 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putString(StringUtils.SAVING_INSTANCE, currentSelection);
-        if (currentSelection.equals(MoviePreferences.FAVORITE_MOVIES)) {
-            mSerializableFavorites = new FavoritesCursorBundle(null);
-            mSerializableFavorites.setFavoriteCursor(mCursor);
-            outState.putParcelable(StringUtils.SAVED_CURSOR, mSerializableFavorites);
-            outState.putParcelable(StringUtils.SAVED_STATE, mLinearLayoutManager.onSaveInstanceState());
-        } else {
-            outState.putParcelableArrayList(StringUtils.SAVED_MOVIES, mMovieAdapter.getMovies());
-            outState.putParcelable(StringUtils.SAVED_STATE, mGridLayoutManager.onSaveInstanceState());
+        if (NetworkUtils.isConnectedToInternet(this)){
+            outState.putString(StringUtils.SAVING_INSTANCE, currentSelection);
+            if (currentSelection.equals(MoviePreferences.FAVORITE_MOVIES)) {
+                mSerializableFavorites = new FavoritesCursorBundle(null);
+                mSerializableFavorites.setFavoriteCursor(mCursor);
+                outState.putParcelable(StringUtils.SAVED_CURSOR, mSerializableFavorites);
+                outState.putParcelable(StringUtils.SAVED_STATE, mLinearLayoutManager.onSaveInstanceState());
+            } else {
+                if (mMovieAdapter!=null){
+                    outState.putParcelableArrayList(StringUtils.SAVED_MOVIES, mMovieAdapter.getMovies());
+                }
+                outState.putParcelable(StringUtils.SAVED_STATE, mGridLayoutManager.onSaveInstanceState());
+            }
+            Log.v(LOG_TAG, "Saving instance to : " + currentSelection);
         }
-        Log.v(LOG_TAG, "Saving instance to : " + currentSelection);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-
     }
 
     @Override
@@ -344,7 +364,7 @@ public class MainActivity extends AppCompatActivity implements
             case MOVIE_LOADER_ID:
                 ArrayList<Movie> movies;
                 movies = (ArrayList<Movie>) objects;
-                mMovieAdapter.setMovieData(movies);
+                mMovieAdapter.setMovies(movies);
                 break;
             case FAVORITES_LOADER_ID:
                 mCursor = (Cursor) objects;

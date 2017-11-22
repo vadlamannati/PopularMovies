@@ -60,16 +60,16 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
         return mMovieData.size();
     }
 
-    public void setMovieData(ArrayList<Movie> movieData) {
+    public void setMovies(ArrayList<Movie> movieData) {
         if(movieData != null){
             Log.v(LOG_TAG, "Setting Movie data to Adapter. Movie Data length : " + movieData.size());
         }
-        //Log.v(LOG_TAG, "Entering setMovieData method");
+        //Log.v(LOG_TAG, "Entering setMovies method");
 
         mMovieData = movieData;
         notifyDataSetChanged();
 
-        //Log.v(LOG_TAG, "Leaving setMovieData method");
+        //Log.v(LOG_TAG, "Leaving setMovies method");
     }
 
     public ArrayList<Movie> getMovies(){
