@@ -5,16 +5,12 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.databinding.DataBindingUtil;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -23,7 +19,6 @@ import android.view.View;
 
 import com.example.bharadwaj.popularmovies.databinding.ActivityMainBinding;
 import com.example.bharadwaj.popularmovies.favorites.FavoriteAsyncTaskLoader;
-import com.example.bharadwaj.popularmovies.favorites.FavoriteContract;
 import com.example.bharadwaj.popularmovies.favorites.FavoritesAdapter;
 import com.example.bharadwaj.popularmovies.favorites.FavoritesCursorBundle;
 import com.example.bharadwaj.popularmovies.movie_utilities.MoviePreferences;
@@ -52,10 +47,10 @@ public class MainActivity extends AppCompatActivity implements
     private Cursor mCursor;
     private FavoritesCursorBundle mSerializableFavorites;
     private GridLayoutManager mGridLayoutManager;
-    private LinearLayoutManager mLinearLayoutManager;
     private Parcelable mLayoutManagerState;
 
     Bundle bundle = new Bundle();
+    boolean onCreateexecuted = false;
     String currentSelection = MoviePreferences.DEFAULT_SORT_PREFERENCE;
 
     protected static void showErrorMessage(String errorMessage) {
@@ -90,35 +85,35 @@ public class MainActivity extends AppCompatActivity implements
         Log.v(LOG_TAG, "Entering onCreate");
         mainActivityBinding = DataBindingUtil.setContentView(this, R.layout.activity_main);
 
-        Log.v(LOG_TAG, "Current view selection is : " + currentSelection);
-        if (NetworkUtils.isConnectedToInternet(this)) {
-            if (null != savedInstanceState) {
-                mLayoutManagerState = savedInstanceState.getParcelable(StringUtils.SAVED_STATE);
-                currentSelection = savedInstanceState.getString(StringUtils.SAVING_INSTANCE);
-                Log.v(LOG_TAG, "Retrieving saved instance : " + currentSelection);
+        if (null != savedInstanceState) {
+            mLayoutManagerState = savedInstanceState.getParcelable(StringUtils.SAVED_STATE);
+            currentSelection = savedInstanceState.getString(StringUtils.SAVING_INSTANCE);
+            Log.v(LOG_TAG, "Retrieving saved instance : " + currentSelection);
 
-                if (currentSelection.equals(MoviePreferences.DEFAULT_SORT_PREFERENCE) || currentSelection.equals(MoviePreferences.SORT_BY_TOP_RATED)) {
-                    mSavedMovies = savedInstanceState.getParcelableArrayList(StringUtils.SAVED_MOVIES);
-                    resetAdapterForMovieData();
-                    loadMovies(currentSelection);
-                } else if (currentSelection.equals(MoviePreferences.FAVORITE_MOVIES)) {
-                    mSerializableFavorites = (FavoritesCursorBundle) savedInstanceState.getParcelable(StringUtils.SAVED_CURSOR);
-                    mCursor = mSerializableFavorites.getFavoriteCursor();
+            if (currentSelection.equals(MoviePreferences.SORT_BY_POPULAR) || currentSelection.equals(MoviePreferences.SORT_BY_TOP_RATED)) {
+                mSavedMovies = savedInstanceState.getParcelableArrayList(StringUtils.SAVED_MOVIES);
+                resetAdapterForMovieData();
+                loadMovies(currentSelection);
+            } else if (currentSelection.equals(MoviePreferences.FAVORITE_MOVIES)) {
+                mSerializableFavorites = savedInstanceState.getParcelable(StringUtils.SAVED_CURSOR);
+                mCursor = mSerializableFavorites.getFavoriteCursor();
 
-                    resetAdapterForFavoriteMovieData();
-                    loadFavoriteMovies();
-                    mLinearLayoutManager.onRestoreInstanceState(mLayoutManagerState);
-                }
-                mSavedMovies = null;
-            } else {
+                resetAdapterForFavoriteMovieData();
+                loadFavoriteMovies();
+                mGridLayoutManager.onRestoreInstanceState(mLayoutManagerState);
+            }
+            mSavedMovies = null;
+        } else {
+            if (NetworkUtils.isConnectedToInternet(this)) {
                 resetAdapterForMovieData();
                 loadMovies(MoviePreferences.DEFAULT_SORT_PREFERENCE);
+
+            } else {
+                MainActivity.showErrorMessage(getString(R.string.no_active_network));
             }
-
-        } else {
-            MainActivity.showErrorMessage(getString(R.string.no_active_network));
         }
-
+        onCreateexecuted = true;
+        Log.v(LOG_TAG,"onCreateExecuted : " + onCreateexecuted);
         Log.v(LOG_TAG, "Leaving onCreate");
     }
 
@@ -127,12 +122,16 @@ public class MainActivity extends AppCompatActivity implements
         super.onResume();
         Log.v(LOG_TAG, "Entering onResume");
         Log.v(LOG_TAG, "Current selection : " + currentSelection);
-        if (currentSelection.equals(MoviePreferences.FAVORITE_MOVIES)) {
-            resetAdapterForFavoriteMovieData();
-            clearFavoriteMovies();
-            loadFavoriteMovies();
-            mLinearLayoutManager.onRestoreInstanceState(mLayoutManagerState);
+        Log.v(LOG_TAG,"onCreateExecuted : " + onCreateexecuted);
+        if (!onCreateexecuted) {
+            if (currentSelection.equals(MoviePreferences.FAVORITE_MOVIES)) {
+                resetAdapterForFavoriteMovieData();
+                clearFavoriteMovies();
+                loadFavoriteMovies();
+                mGridLayoutManager.onRestoreInstanceState(mLayoutManagerState);
+            }
         }
+        onCreateexecuted = false;
         Log.v(LOG_TAG, "Leaving onResume");
     }
 
@@ -162,29 +161,16 @@ public class MainActivity extends AppCompatActivity implements
         if (mCursor != null) {
             mFavoritesAdapter.setCursor(mCursor);
         }
-        mLinearLayoutManager = new LinearLayoutManager(MainActivity.this);
-        mainActivityBinding.moviesRecyclerView.setLayoutManager(mLinearLayoutManager);
+        if (MainActivity.this.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+            Log.v(LOG_TAG, "Device orientation : PORTRAIT");
+            mGridLayoutManager = new GridLayoutManager(MainActivity.this, 1);
+        } else {
+            Log.v(LOG_TAG, "Device orientation : + LANDSCAPE");
+            mGridLayoutManager = new GridLayoutManager(MainActivity.this, 1);
+        }
+        mainActivityBinding.moviesRecyclerView.setLayoutManager(mGridLayoutManager);
         mainActivityBinding.moviesRecyclerView.setAdapter(mFavoritesAdapter);
         mainActivityBinding.moviesRecyclerView.setHasFixedSize(true);
-
-        new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
-            @Override
-            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
-                return false;
-            }
-
-            @Override
-            public void onSwiped(RecyclerView.ViewHolder viewHolder, int swipeDir) {
-                int id = (int) viewHolder.itemView.getTag();
-                String stringId = Integer.toString(id);
-                Uri uri = FavoriteContract.Favorites.CONTENT_URI;
-                uri = uri.buildUpon().appendPath(stringId).build();
-                getContentResolver().delete(uri, null, null);
-                mFavoritesAdapter.setCursor(null);
-                Log.v(LOG_TAG, "Restarting Loader");
-                getSupportLoaderManager().restartLoader(FAVORITES_LOADER_ID, null, MainActivity.this);
-            }
-        }).attachToRecyclerView(mainActivityBinding.moviesRecyclerView);
 
         mainActivityBinding.favoritesExplanationText.setVisibility(View.VISIBLE);
         mainActivityBinding.favoritesExplanationTextSaperator.setVisibility(View.VISIBLE);
@@ -268,6 +254,7 @@ public class MainActivity extends AppCompatActivity implements
                     loadMovies(sortPreference);
                 } else if (currentSelection.equals(MoviePreferences.FAVORITE_MOVIES)) {
                     resetAdapterForFavoriteMovieData();
+                    clearFavoriteMovies();
                     loadFavoriteMovies();
                 }
                 break;
@@ -300,21 +287,19 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        if (NetworkUtils.isConnectedToInternet(this)){
-            outState.putString(StringUtils.SAVING_INSTANCE, currentSelection);
-            if (currentSelection.equals(MoviePreferences.FAVORITE_MOVIES)) {
-                mSerializableFavorites = new FavoritesCursorBundle(null);
-                mSerializableFavorites.setFavoriteCursor(mCursor);
-                outState.putParcelable(StringUtils.SAVED_CURSOR, mSerializableFavorites);
-                outState.putParcelable(StringUtils.SAVED_STATE, mLinearLayoutManager.onSaveInstanceState());
-            } else {
-                if (mMovieAdapter!=null){
-                    outState.putParcelableArrayList(StringUtils.SAVED_MOVIES, mMovieAdapter.getMovies());
-                }
+        outState.putString(StringUtils.SAVING_INSTANCE, currentSelection);
+        if (currentSelection.equals(MoviePreferences.FAVORITE_MOVIES)) {
+            mSerializableFavorites = new FavoritesCursorBundle(null);
+            mSerializableFavorites.setFavoriteCursor(mCursor);
+            outState.putParcelable(StringUtils.SAVED_CURSOR, mSerializableFavorites);
+            outState.putParcelable(StringUtils.SAVED_STATE, mGridLayoutManager.onSaveInstanceState());
+        } else {
+            if (mMovieAdapter != null) {
+                outState.putParcelableArrayList(StringUtils.SAVED_MOVIES, mMovieAdapter.getMovies());
                 outState.putParcelable(StringUtils.SAVED_STATE, mGridLayoutManager.onSaveInstanceState());
             }
-            Log.v(LOG_TAG, "Saving instance to : " + currentSelection);
         }
+        Log.v(LOG_TAG, "Saving instance to : " + currentSelection);
     }
 
     @Override

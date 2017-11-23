@@ -57,7 +57,7 @@ public class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapter.Favo
     @Override
     public FavoriteViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         Context context = parent.getContext();
-        View view = LayoutInflater.from(context).inflate(R.layout.favorite_list_item, parent, false);
+        View view = LayoutInflater.from(context).inflate(R.layout.movie_list_item, parent, false);
 
         //Log.v(LOG_TAG, "Returning new ViewHolder object");
         return new FavoriteViewHolder(view);
@@ -85,9 +85,6 @@ public class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapter.Favo
 
         Log.v(LOG_TAG, "Binding Movie to the view : " + movie.toString());
 
-        movieHolder.mFavoriteMovieName.setText(movieName);
-        movieHolder.mFavoriteMovieRating.setText(userRating + MovieJSONParser.USER_RATING_REFERENCE_TOTAL);
-        movieHolder.mFavoriteMovieReleaseDate.setText(releaseDate);
         MovieJSONParser.buildPosterFromPath(movie.getPosterPath(), movieHolder.mFavoriteMovieThumbnail);
 
         movieHolder.itemView.setTag(mCursor.getInt(mCursor.getColumnIndex(Favorites._ID)));
@@ -107,18 +104,12 @@ public class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapter.Favo
 
     class FavoriteViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
 
-        private TextView mFavoriteMovieName;
         private ImageView mFavoriteMovieThumbnail;
-        private TextView mFavoriteMovieRating;
-        private TextView mFavoriteMovieReleaseDate;
 
 
         public FavoriteViewHolder(View itemView){
             super(itemView);
-            mFavoriteMovieThumbnail = itemView.findViewById(R.id.favorite_movie_thumbnail);
-            mFavoriteMovieName = itemView.findViewById(R.id.favorite_movie_name);
-            mFavoriteMovieRating = itemView.findViewById(R.id.favorite_movie_rating);
-            mFavoriteMovieReleaseDate = itemView.findViewById(R.id.favorite_movie_release_date);
+            mFavoriteMovieThumbnail = itemView.findViewById(R.id.movie_thumbnail);
             itemView.setOnClickListener(this);
         }
 
