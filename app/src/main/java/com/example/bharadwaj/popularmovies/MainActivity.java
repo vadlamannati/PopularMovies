@@ -163,10 +163,10 @@ public class MainActivity extends AppCompatActivity implements
         }
         if (MainActivity.this.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
             Log.v(LOG_TAG, "Device orientation : PORTRAIT");
-            mGridLayoutManager = new GridLayoutManager(MainActivity.this, 1);
+            mGridLayoutManager = new GridLayoutManager(MainActivity.this, 3);
         } else {
             Log.v(LOG_TAG, "Device orientation : + LANDSCAPE");
-            mGridLayoutManager = new GridLayoutManager(MainActivity.this, 1);
+            mGridLayoutManager = new GridLayoutManager(MainActivity.this, 5);
         }
         mainActivityBinding.moviesRecyclerView.setLayoutManager(mGridLayoutManager);
         mainActivityBinding.moviesRecyclerView.setAdapter(mFavoritesAdapter);
